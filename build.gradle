@@ -62,6 +62,9 @@ dependencies {
 	// mapper
 	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 
+	// https://mvnrepository.com/artifact/net.logstash.logback/logstash-logback-encoder
+	implementation group: 'net.logstash.logback', name: 'logstash-logback-encoder', version: '7.0.1'
+
 	// hapi fhir
 	implementation "ca.uhn.hapi.fhir:org.hl7.fhir.r4:$hapiFhirVersion"
 	implementation "ca.uhn.hapi.fhir:hapi-fhir-base:$hapiFhirVersion"
@@ -92,6 +95,7 @@ dependencies {
 	intTestImplementation "org.testcontainers:junit-jupiter:$testContainersVersion"
 	intTestImplementation 'org.awaitility:awaitility:4.1.0'
 	intTestImplementation 'org.assertj:assertj-core:3.17.2'
+
 
 }
 

@@ -104,7 +104,7 @@ services:
                 - name: "kafka-connect"
                   url: "http://kafka-connect:8083"
     ports:
-      - 8080:8080
+      - "8088:8080"
 
   connect-init-lufu-main:
     image: byrnedo/alpine-curl:0.1.8
