@@ -11,7 +11,7 @@ RUN gradle build -x integrationTest --info && \
     java -Djarmode=layertools -jar build/libs/*.jar extract
 
 FROM gcr.io/distroless/java:11
-WORKDIR /opt/kafka-streams-template
+WORKDIR /opt/kafka-pseudonymiser
 COPY --from=build /home/gradle/src/dependencies/ ./
 COPY --from=build /home/gradle/src/spring-boot-loader/ ./
 COPY --from=build /home/gradle/src/application/ ./

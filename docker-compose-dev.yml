@@ -1,0 +1,178 @@
+version: "3.4"
+
+services:
+
+  zoo:
+    image: zookeeper:3.6.1
+    ports:
+      - "2181:2181"
+    environment:
+      ZOO_MY_ID: 1
+      ZOO_PORT: 2181
+      ZOO_SERVERS: server.1=zoo:2888:3888;2181
+
+  kafka:
+    image: confluentinc/cp-kafka:5.5.2
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_ADVERTISED_LISTENERS:
+        LISTENER_DOCKER_INTERNAL://kafka:19092,
+        LISTENER_DOCKER_EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP:
+        LISTENER_DOCKER_INTERNAL:PLAINTEXT,LISTENER_DOCKER_EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: LISTENER_DOCKER_INTERNAL
+      KAFKA_ZOOKEEPER_CONNECT: zoo:2181
+      KAFKA_BROKER_ID: 1
+      KAFKA_LOG4J_LOGGERS:
+        kafka.controller=INFO,kafka.producer.async.DefaultEventHandler=INFO,state.change.logger=INFO
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_MESSAGE_MAX_BYTES: 5242880
+      KAFKA_REPLICA_FETCH_MAX_BYTES: 5242880
+      KAFKA_COMPRESSION_TYPE: gzip
+    depends_on:
+      - zoo
+
+  kafka-schema-registry:
+    image: confluentinc/cp-schema-registry:5.5.2
+    ports:
+      - "8081:8081"
+    environment:
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: PLAINTEXT://kafka:19092
+      SCHEMA_REGISTRY_HOST_NAME: kafka-schema-registry
+      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
+    depends_on:
+      - zoo
+      - kafka
+
+  kafka-rest-proxy:
+    image: confluentinc/cp-kafka-rest:5.5.2
+    ports:
+      - "8082:8082"
+    environment:
+      KAFKA_REST_LISTENERS: http://0.0.0.0:8082/
+      KAFKA_REST_SCHEMA_REGISTRY_URL: http://kafka-schema-registry:8081/
+      KAFKA_REST_HOST_NAME: kafka-rest-proxy
+      KAFKA_REST_BOOTSTRAP_SERVERS: PLAINTEXT://kafka:19092
+      KAFKA_REST_CONSUMER_REQUEST_TIMEOUT_MS: 30000
+    depends_on:
+      - zoo
+      - kafka
+
+
+  kafka-connect:
+    image: confluentinc/cp-kafka-connect:5.5.2
+    ports:
+      - "8083:8083"
+      - "8091:8091"
+    environment:
+      CONNECT_BOOTSTRAP_SERVERS: kafka:19092
+      CONNECT_REST_PORT: 8083
+      CONNECT_GROUP_ID: compose-connect-group
+      CONNECT_CONFIG_STORAGE_TOPIC: docker-connect-configs
+      CONNECT_OFFSET_STORAGE_TOPIC: docker-connect-offsets
+      CONNECT_STATUS_STORAGE_TOPIC: docker-connect-status
+      CONNECT_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      CONNECT_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      CONNECT_INTERNAL_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      CONNECT_INTERNAL_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      CONNECT_REST_ADVERTISED_HOST_NAME: kafka-connect
+      CONNECT_LOG4J_ROOT_LOGLEVEL: INFO
+      CONNECT_LOG4J_LOGGERS: "org.apache.kafka.connect.runtime.rest=WARN,org.reflections=ERROR"
+      CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_PLUGIN_PATH: /usr/share/java
+    volumes:
+      - ./connect/mssql-jdbc-8.4.1.jre8.jar:/usr/share/java/kafka-connect-jdbc/mssql-jdbc-8.4.1.jre8.jar
+    depends_on:
+      - zoo
+      - kafka
+      - kafka-rest-proxy
+
+
+  akhq:
+    image: tchiotludo/akhq:0.18.0
+    environment:
+      AKHQ_CONFIGURATION: |
+        akhq:
+          connections:
+            docker-kafka-server:
+              properties:
+                bootstrap.servers: "kafka:19092"
+              connect:
+                - name: "kafka-connect"
+                  url: "http://kafka-connect:8083"
+    ports:
+      - 8080:8080
+
+  connect-init-lufu-main:
+    image: byrnedo/alpine-curl:0.1.8
+    command: -i -X POST -H "Accept:application/json"
+      -H "Content-Type:application/json"
+      -d @/connect/mssql-source.json
+      --retry-connrefused
+      --connect-timeout 10
+      --max-time 60
+      --retry 5
+      --retry-delay 10
+      http://kafka-connect:8083/connectors/
+    volumes:
+      - ./connect/mssql-source.json:/connect/mssql-source.json:ro
+    depends_on:
+      - kafka-connect
+
+  kafka-connect-ui:
+    image: landoop/kafka-connect-ui:0.9.7
+    ports:
+      - "8003:8000"
+    environment:
+      CONNECT_URL: http://kafka-connect:8083/
+      PROXY: "true"
+    depends_on:
+      - kafka-connect
+
+  connect-init-lufu-limit:
+    image: byrnedo/alpine-curl:0.1.8
+    command: -i -X POST -H "Accept:application/json"
+      -H "Content-Type:application/json"
+      -d @/connect/mssql-source-lufu-limits.json
+      --retry-connrefused
+      --connect-timeout 10
+      --max-time 60
+      --retry 5
+      --retry-delay 12
+      http://kafka-connect:8083/connectors/
+    volumes:
+      - ./connect/mssql-source-lufu-limits.json:/connect/mssql-source-lufu-limits.json:ro
+    depends_on:
+      - kafka-connect
+
+  connect-init-lufu-parmater-info:
+    image: byrnedo/alpine-curl:0.1.8
+    command: -i -X POST -H "Accept:application/json"
+      -H "Content-Type:application/json"
+      -d @/connect/mssql-source-lufu-parmeter-info.json
+      --retry-connrefused
+      --connect-timeout 10
+      --max-time 60
+      --retry 5
+      --retry-delay 12
+      http://kafka-connect:8083/connectors/
+    volumes:
+      - ./connect/mssql-source-lufu-parmeter-info.json:/connect/mssql-source-lufu-parmeter-info.json:ro
+    depends_on:
+      - kafka-connect
+
+  prometheus:
+    image: prom/prometheus:v2.25.0
+    network_mode: host
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+
+  gpas:
+    image: harbor.miracum.org/gpas/gpas:1.10.0-20201221
+    ports:
+      - "18081:8080"
+
+
