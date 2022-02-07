@@ -7,20 +7,19 @@ import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.KTable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.hl7.fhir.r4.model.Bundle;
 
 public class KafaPseudonymiserProcessor {
 
-    @Autowired
     private final FhirPseudonymizer fhirPseudonymizer;
 
+    @Autowired
     public KafaPseudonymiserProcessor(FhirPseudonymizer fhirPseudonymizer) {
         this.fhirPseudonymizer = fhirPseudonymizer;
     }
-
-
     @Bean
-    public Function<KTable<String, String>, KStream<String, String>> process() {
-        return input -> input.toStream().filter((k, v) -> v != null);
+    public Function<KTable<String, Bundle>, KStream<String, Bundle>> process() {
+        return fhir_bundle -> fhir_bundle.toStream().filter((k, v) -> v != null).mapValues(fhirPseudonymizer::process);
     }
 
 }
