@@ -34,5 +34,5 @@ LABEL org.opencontainers.image.created=${BUILD_TIME} \
     org.opencontainers.image.version=${VERSION} \
     org.opencontainers.image.revision=${GIT_REF} \
     org.opencontainers.image.vendor="diz.uni-marburg.de" \
-    org.opencontainers.image.title="kafka-pseudonymiser" \
+    org.opencontainers.image.title="kafka-pseudonymizer" \
     org.opencontainers.image.description="Kafka Pseudonymiser for DIZ Marburg"

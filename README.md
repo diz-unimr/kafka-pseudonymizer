@@ -1,3 +1,3 @@
-# kafa-pseudonymiser
+# kafka-pseudonymizer
 
-Allgemein Pseudonymiser für DIZ Marburg
+Allgemein Pseudonymizer für DIZ Marburg
