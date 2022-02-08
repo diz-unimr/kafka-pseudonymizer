@@ -1,4 +1,4 @@
-package de.unimarburg.diz.kafkastreamPseudonymiser;
+package de.unimarburg.diz.kafkapseudonymizer;
 
 import java.util.function.Function;
 import de.unimarburg.diz.FhirPseudonymizer;
@@ -8,7 +8,9 @@ import org.apache.kafka.streams.kstream.KTable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.hl7.fhir.r4.model.Bundle;
+import org.springframework.stereotype.Service;
 
+@Service
 public class KafaPseudonymiserProcessor {
 
     private final FhirPseudonymizer fhirPseudonymizer;

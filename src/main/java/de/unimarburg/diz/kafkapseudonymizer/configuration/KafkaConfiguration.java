@@ -1,4 +1,4 @@
-package de.unimarburg.diz.configuration;
+package de.unimarburg.diz.kafkapseudonymizer.configuration;
 
 import org.apache.kafka.common.serialization.Serde;
 import org.hl7.fhir.instance.model.api.IBaseResource;
@@ -25,6 +25,8 @@ public class KafkaConfiguration {
                 }));
         };
     }
+
+
 
     @Bean
     public Serde<IBaseResource> fhirSerde() {

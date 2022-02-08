@@ -1,4 +1,4 @@
-package de.unimarburg.diz.configuration;
+package de.unimarburg.diz.kafkapseudonymizer.configuration;
 
 import ca.uhn.fhir.context.FhirContext;
 import de.unimarburg.diz.FhirPseudonymizer;

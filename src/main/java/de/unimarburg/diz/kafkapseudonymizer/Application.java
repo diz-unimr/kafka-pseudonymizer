@@ -1,4 +1,4 @@
-package de.unimarburg.diz.kafkastreamPseudonymiser;
+package de.unimarburg.diz.kafkapseudonymizer;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
