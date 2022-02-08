@@ -1,4 +1,4 @@
-package de.unimarburg.diz.kafkastreamstemplate;
+package de.unimarburg.diz.kafkastreamPseudonymiser;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
