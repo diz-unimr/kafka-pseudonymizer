@@ -1,4 +1,4 @@
-package de.unimarburg.diz;
+package de.unimarburg.diz.kafkapseudonymizer;
 
 import static net.logstash.logback.argument.StructuredArguments.kv;
 
@@ -21,22 +21,22 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
 
-public class FhirPseudonymizer {
+public class PseudonymizerClient {
 
-    private static final Logger log = LoggerFactory.getLogger(FhirPseudonymizer.class);
+    private static final Logger log = LoggerFactory.getLogger(PseudonymizerClient.class);
 
     private final String pseudonymizerUrl;
     private final RetryTemplate retryTemplate;
     private final IGenericClient client;
 
-    public FhirPseudonymizer(
+    public PseudonymizerClient(
         FhirContext fhirContext, String pseudonymizerUrl, RetryTemplate retryTemplate) {
         this.client = fhirContext.newRestfulGenericClient(pseudonymizerUrl);
         this.pseudonymizerUrl = pseudonymizerUrl;
         this.retryTemplate = retryTemplate;
     }
 
-    public FhirPseudonymizer(FhirContext fhirContext, String pseudonymizerUrl) {
+    public PseudonymizerClient(FhirContext fhirContext, String pseudonymizerUrl) {
         this(fhirContext, pseudonymizerUrl, defaultTemplate());
     }
 

@@ -10,23 +10,26 @@ spring:
       key-store-location: file://${SSL_KEY_STORE_LOCATION_INTERNAL:/opt/kafka-pseudonymiser/ssl/keystore.jks}
       key-store-password: ${SSL_KEY_STORE_PASSWORD}
 
-#  cloud:
-#    stream:
-#      function.definition: process
-#      bindings:
-#        process-in-0:
-#          destination: input-topic
-#        process-out-0:
-#          destination: output-topic
-#      kafka:
-#        streams:
-#          binder:
-#            applicationId: kafka-streams-template
-#            configuration:
-#              compression.type: gzip
-#              max.request.size: 5242880
-#            deserializationExceptionHandler: sendToDlq
+  cloud:
+    stream:
+      function.definition: process
+      bindings:
+        process-in-0:
+          destination: input-topic
+        process-out-0:
+          destination: output-topic
+      kafka:
+        streams:
+          binder:
+            applicationId: kafka-pseudonymizer
+            configuration:
+              compression.type: gzip
+              max.request.size: 5242880
+            deserializationExceptionHandler: sendToDlq
 
+services:
+  pseudonymizer:
+    url: "http://localhost:5000/fhir"
 
 management:
   server:

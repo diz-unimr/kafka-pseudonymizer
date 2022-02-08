@@ -1,7 +1,6 @@
 package de.unimarburg.diz.kafkapseudonymizer;
 
 import java.util.function.Function;
-import de.unimarburg.diz.FhirPseudonymizer;
 
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.KTable;
@@ -11,17 +10,18 @@ import org.hl7.fhir.r4.model.Bundle;
 import org.springframework.stereotype.Service;
 
 @Service
-public class KafaPseudonymiserProcessor {
+public class Processor {
 
-    private final FhirPseudonymizer fhirPseudonymizer;
+    private final PseudonymizerClient pseudonymizerClient;
 
     @Autowired
-    public KafaPseudonymiserProcessor(FhirPseudonymizer fhirPseudonymizer) {
-        this.fhirPseudonymizer = fhirPseudonymizer;
+    public Processor(PseudonymizerClient fhirPseudonymizer) {
+        this.pseudonymizerClient = fhirPseudonymizer;
     }
     @Bean
     public Function<KTable<String, Bundle>, KStream<String, Bundle>> process() {
-        return fhir_bundle -> fhir_bundle.toStream().filter((k, v) -> v != null).mapValues(fhirPseudonymizer::process);
+        return fhirBundle -> fhirBundle.toStream().filter((k, v) -> v != null).mapValues(
+            pseudonymizerClient::process);
     }
 
 }

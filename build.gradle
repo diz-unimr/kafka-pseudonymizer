@@ -132,7 +132,7 @@ jar {
 }
 
 bootJar {
-	mainClass.set('de.unimarburg.diz.kafkastreamPseudonymiser.Application')
+	mainClass.set('de.unimarburg.diz.kafkapseudonymiser.Application')
 }
 
 ext['log4j2.version'] = '2.17.1'

@@ -1,7 +1,7 @@
 package de.unimarburg.diz.kafkapseudonymizer.configuration;
 
 import ca.uhn.fhir.context.FhirContext;
-import de.unimarburg.diz.FhirPseudonymizer;
+import de.unimarburg.diz.kafkapseudonymizer.PseudonymizerClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -20,9 +20,9 @@ public class FhirConfiguration {
 
     @Bean
     @Autowired
-    public FhirPseudonymizer pseudonymizer(FhirContext fhirContext,
+    public PseudonymizerClient pseudonymizer(FhirContext fhirContext,
                                            @Value("${services.pseudonymizer.url}") String pseudonymizerUrl) {
-        return new FhirPseudonymizer(fhirContext, pseudonymizerUrl);
+        return new PseudonymizerClient(fhirContext, pseudonymizerUrl);
     }
 
 }
