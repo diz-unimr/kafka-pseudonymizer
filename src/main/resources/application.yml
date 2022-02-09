@@ -15,9 +15,9 @@ spring:
       function.definition: process
       bindings:
         process-in-0:
-          destination: input-topic
+          destination: test123
         process-out-0:
-          destination: output-topic
+          destination: test12345
       kafka:
         streams:
           binder:

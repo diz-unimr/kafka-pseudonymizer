@@ -5,6 +5,6 @@ services:
   kcat:
     image: edenhill/kcat:1.7.1
     entrypoint: ""
-    command: /bin/sh -c 'kcat -b kafka:19092 -X message.max.bytes=100000000 -t test123 -P /data/*'
+    command: /bin/sh -c 'kcat -P -b kafka:19092 -X message.max.bytes=100000000 -t test123 /data/*'
     volumes:
       - ${DATA_DIR:-./test-data}:/data:ro
