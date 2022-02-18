@@ -6,18 +6,15 @@ fhirPathRules:
   - path: Encounter.id
     method: pseudonymize
     domain: ENCOUNTER
-  - path: DiagnosticReport.id
-    method: pseudonymize
-    domain: DIAGNOSTIC-REPORT
   - path: nodesByType('Reference').where(reference.startsWith('Encounter/')).reference
     method: pseudonymize
-    domain: ENCOUTER
+    domain: ENCOUNTER
   - path: nodesByType('Reference').where(reference.startsWith('Patient/')).reference
     method: pseudonymize
     domain: PATIENT
   - path: nodesByType('Reference').where(reference.startsWith('DiagnosticReport/')).reference
     method: pseudonymize
-    domain: DIAGNOSTIC-REPORT
+    domain: ORDER
     # Bundle.entry.where(resource.ofType(Patient)).fullUrl is unfortunately not supported by the FhirPath implementation
   - path: Bundle.entry.where(fullUrl.startsWith('Patient/')).fullUrl
     method: pseudonymize
@@ -33,10 +30,10 @@ fhirPathRules:
     domain: ENCOUNTER
   - path: Bundle.entry.where(fullUrl.startsWith('DiagnosticReport/')).fullUrl
     method: pseudonymize
-    domain: DIAGNOSTIC-REPORT
+    domain: ORDER
   - path: Bundle.entry.request.where(url.startsWith('DiagnosticReport/')).url
     method: pseudonymize
-    domain: DIAGNOSTIC-REPORT
+    domain: ORDER
   - path: nodesByType('Reference').display
     method: redact
   - path: nodesByType('HumanName')
@@ -49,7 +46,7 @@ fhirPathRules:
     domain: PATIENT
   - path: nodesByType('Identifier').where(type.coding.system='http://terminology.hl7.org/CodeSystem/v2-0203' and type.coding.code='FILL').value
     method: pseudonymize
-    domain: DIAGNOSTIC-REPORT
+    domain: ORDER
   - path: nodesByType('Identifier').where(type.coding.system='http://fhir.de/CodeSystem/identifier-type-de-basis' and type.coding.code='GKV' or type.coding.code='PKV')
     method: redact
 parameters:
@@ -60,4 +57,4 @@ parameters:
   enablePartialAgesForRedact: true
   enablePartialDatesForRedact: true
   enablePartialZipCodesForRedact: true
-  restrictedZipCodeTabulationAreas: []
+  restrictedZipCodeTabulationAreas: [ ]

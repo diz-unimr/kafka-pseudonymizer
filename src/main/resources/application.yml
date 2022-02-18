@@ -31,16 +31,20 @@ services:
   pseudonymizer:
     url: "http://localhost:5000/fhir"
 
-management:
-  server:
-    port: 8089
-  endpoints:
-    web:
-      exposure:
-        include: "health, prometheus, info, metric"
-  endpoint:
-    health:
-      show-details: always
+
+server:
+  port: 8089
+
+#management:
+#  server:
+#    port: 8089
+#  endpoints:
+#    web:
+#      exposure:
+#        include: "health, prometheus, info, metric"
+#  endpoint:
+#    health:
+#      show-details: always
 
 logging:
   level:
