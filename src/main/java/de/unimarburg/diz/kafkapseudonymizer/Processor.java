@@ -19,8 +19,8 @@ public class Processor {
         this.pseudonymizerClient = fhirPseudonymizer;
     }
     @Bean
-    public Function<KTable<String, Bundle>, KStream<String, Bundle>> process() {
-        return fhirBundle -> fhirBundle.toStream().filter((k, v) -> v != null).mapValues(
+    public Function<KStream<String, Bundle>, KStream<String, Bundle>> process() {
+        return fhirBundle -> fhirBundle.mapValues(
             pseudonymizerClient::process);
     }
 

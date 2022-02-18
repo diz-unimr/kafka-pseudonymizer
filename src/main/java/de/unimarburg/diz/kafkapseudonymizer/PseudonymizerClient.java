@@ -24,7 +24,6 @@ import org.springframework.web.client.ResourceAccessException;
 public class PseudonymizerClient {
 
     private static final Logger log = LoggerFactory.getLogger(PseudonymizerClient.class);
-
     private final String pseudonymizerUrl;
     private final RetryTemplate retryTemplate;
     private final IGenericClient client;

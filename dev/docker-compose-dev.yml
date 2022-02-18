@@ -30,59 +30,59 @@ services:
     depends_on:
       - zoo
 
-  kafka-schema-registry:
-    image: confluentinc/cp-schema-registry:5.5.0
-    ports:
-      - "8081:8081"
-    environment:
-      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: PLAINTEXT://kafka:19092
-      SCHEMA_REGISTRY_HOST_NAME: kafka-schema-registry
-      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
-    depends_on:
-      - zoo
-      - kafka
+#  kafka-schema-registry:
+#    image: confluentinc/cp-schema-registry:5.5.0
+#    ports:
+#      - "8081:8081"
+#    environment:
+#      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: PLAINTEXT://kafka:19092
+#      SCHEMA_REGISTRY_HOST_NAME: kafka-schema-registry
+#      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
+#    depends_on:
+#      - zoo
+#      - kafka
 
-  kafka-rest-proxy:
-    image: confluentinc/cp-kafka-rest:5.5.0
-    ports:
-      - "8082:8082"
-    environment:
-      KAFKA_REST_LISTENERS: http://0.0.0.0:8082/
-      KAFKA_REST_SCHEMA_REGISTRY_URL: http://kafka-schema-registry:8081/
-      KAFKA_REST_HOST_NAME: kafka-rest-proxy
-      KAFKA_REST_BOOTSTRAP_SERVERS: PLAINTEXT://kafka:19092
-      KAFKA_REST_CONSUMER_REQUEST_TIMEOUT_MS: 30000
-    depends_on:
-      - zoo
-      - kafka
+#  kafka-rest-proxy:
+#    image: confluentinc/cp-kafka-rest:5.5.0
+#    ports:
+#      - "8082:8082"
+#    environment:
+#      KAFKA_REST_LISTENERS: http://0.0.0.0:8082/
+#      KAFKA_REST_SCHEMA_REGISTRY_URL: http://kafka-schema-registry:8081/
+#      KAFKA_REST_HOST_NAME: kafka-rest-proxy
+#      KAFKA_REST_BOOTSTRAP_SERVERS: PLAINTEXT://kafka:19092
+#      KAFKA_REST_CONSUMER_REQUEST_TIMEOUT_MS: 30000
+#    depends_on:
+#      - zoo
+#      - kafka
 
-
-  kafka-connect:
-    image: confluentinc/cp-kafka-connect:5.5.0
-    ports:
-      - "8083:8083"
-    environment:
-      CONNECT_BOOTSTRAP_SERVERS: kafka:19092
-      CONNECT_REST_PORT: 8083
-      CONNECT_GROUP_ID: compose-connect-group
-      CONNECT_CONFIG_STORAGE_TOPIC: docker-connect-configs
-      CONNECT_OFFSET_STORAGE_TOPIC: docker-connect-offsets
-      CONNECT_STATUS_STORAGE_TOPIC: docker-connect-status
-      CONNECT_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
-      CONNECT_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
-      CONNECT_INTERNAL_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
-      CONNECT_INTERNAL_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
-      CONNECT_REST_ADVERTISED_HOST_NAME: kafka-connect
-      CONNECT_LOG4J_ROOT_LOGLEVEL: INFO
-      CONNECT_LOG4J_LOGGERS: "org.apache.kafka.connect.runtime.rest=WARN,org.reflections=ERROR"
-      CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: 1
-      CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: 1
-      CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 1
-      CONNECT_PLUGIN_PATH: /usr/share/java
-    depends_on:
-      - zoo
-      - kafka
-      - kafka-rest-proxy
+#
+#  kafka-connect:
+#    image: confluentinc/cp-kafka-connect:5.5.0
+#    ports:
+#      - "8083:8083"
+#    environment:
+#      CONNECT_BOOTSTRAP_SERVERS: kafka:19092
+#      CONNECT_REST_PORT: 8083
+#      CONNECT_GROUP_ID: compose-connect-group
+#      CONNECT_CONFIG_STORAGE_TOPIC: docker-connect-configs
+#      CONNECT_OFFSET_STORAGE_TOPIC: docker-connect-offsets
+#      CONNECT_STATUS_STORAGE_TOPIC: docker-connect-status
+#      CONNECT_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+#      CONNECT_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+#      CONNECT_INTERNAL_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+#      CONNECT_INTERNAL_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+#      CONNECT_REST_ADVERTISED_HOST_NAME: kafka-connect
+#      CONNECT_LOG4J_ROOT_LOGLEVEL: INFO
+#      CONNECT_LOG4J_LOGGERS: "org.apache.kafka.connect.runtime.rest=WARN,org.reflections=ERROR"
+#      CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: 1
+#      CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: 1
+#      CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 1
+#      CONNECT_PLUGIN_PATH: /usr/share/java
+#    depends_on:
+#      - zoo
+#      - kafka
+#      - kafka-rest-proxy
 
 
   akhq:
@@ -103,7 +103,7 @@ services:
   gpas:
     image: harbor.miracum.org/gpas/gpas:1.10.0-20201221
     ports:
-      - "18081:8080"
+      - "18080:8080"
 
   gpasinit-patient:
     image: curlimages/curl:7.75.0
@@ -130,7 +130,7 @@ services:
       --max-time 120
       --retry 10
       --retry-delay 10
-      http://gpas:18081/gpas/DomainService
+      http://gpas:18080/gpas/DomainService
     depends_on:
       - gpas
 
@@ -159,7 +159,7 @@ services:
       --max-time 120
       --retry 10
       --retry-delay 10
-      http://gpas:18081/gpas/DomainService
+      http://gpas:18080/gpas/DomainService
     depends_on:
       - gpas
 
@@ -188,7 +188,7 @@ services:
       --max-time 120
       --retry 10
       --retry-delay 10
-      http://gpas:18081/gpas/DomainService
+      http://gpas:18080/gpas/DomainService
     depends_on:
       - gpas
 
@@ -196,7 +196,7 @@ services:
   fhir-pseudonymizer:
     image: registry.diz.uni-marburg.de/docker/fhir-pseudonymizer:1.6.0
     environment:
-      GPAS__URL: ${GPAS_URL:-http://gpas:18081/gpas/gpasService}
+      GPAS__URL: "http://gpas:18080/gpas/gpasService"
     volumes:
       - ./anonymization.yaml:/etc/anonymization.yaml:ro
     ports:
