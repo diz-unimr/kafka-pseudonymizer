@@ -1,0 +1,19 @@
+version: "3.7"
+
+services:
+  patient-to-fhir:
+    image: registry.diz.uni-marburg.de/etl/kafka-pseudonymizer:${IMAGE_TAG:-latest}
+    environment:
+      SPRING_CLOUD_STREAM_BINDINGS_PROCESS_IN_0_DESTINATION: ${INPUT_TOPIC}
+      SPRING_CLOUD_STREAM_BINDINGS_PROCESS_OUT_0_DESTINATION: ${OUTPUT_TOPIC}
+      SPRING_CLOUD_STREAM_KAFKA_BINDER_BROKERS: ${KAFKA_BROKERS}
+      SERVICES_PSEUDONYMIZER_URL: ${PSEUDONYMIZER_URL}
+      FHIR_USECONDITIONALUPDATES: ${USE_CONDITIONAL_UPDATES:-false}
+      SECURITY_PROTOCOL: SSL
+      SSL_KEY_STORE_PASSWORD: ${SSL_KEY_STORE_PASSWORD}
+      SSL_TRUST_STORE_PASSWORD: ${SSL_TRUST_STORE_PASSWORD}
+    ports:
+      - "${WEB_PORT:-8089}:8080"
+    volumes:
+      - ${SSL_KEYSTORE_LOCATION}:/opt/kafka-pseudonymizer/ssl/keystore.jks
+      - ${SSL_TRUSTSTORE_LOCATION}:/opt/kafka-pseudonymizer/ssl/truststore.jks
