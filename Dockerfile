@@ -11,7 +11,7 @@ RUN gradle build -x integrationTest --info && \
     java -Djarmode=layertools -jar build/libs/*.jar extract
 
 FROM gcr.io/distroless/java:11
-WORKDIR /opt/kafka-pseudonymiser
+WORKDIR /opt/kafka-pseudonymizer
 COPY --from=build /home/gradle/src/dependencies/ ./
 COPY --from=build /home/gradle/src/spring-boot-loader/ ./
 COPY --from=build /home/gradle/src/application/ ./
@@ -35,4 +35,4 @@ LABEL org.opencontainers.image.created=${BUILD_TIME} \
     org.opencontainers.image.revision=${GIT_REF} \
     org.opencontainers.image.vendor="diz.uni-marburg.de" \
     org.opencontainers.image.title="kafka-pseudonymizer" \
-    org.opencontainers.image.description="Kafka Pseudonymiser for DIZ Marburg"
+    org.opencontainers.image.description="Kafka Pseudonymizer for DIZ Marburg"
