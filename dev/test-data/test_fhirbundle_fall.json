@@ -11,10 +11,6 @@
         "meta": {
           "lastUpdated": "2014-11-13T11:41:00+11:00"
         },
-        "text": {
-          "status": "generated",
-          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">\n      <p>Henry Levin the 7th</p>\n      <p>MRN: 123456. Male, 24-Sept 1932</p>\n    </div>"
-        },
         "extension": [
           {
             "url": "http://example.org/StructureDefinition/trials",

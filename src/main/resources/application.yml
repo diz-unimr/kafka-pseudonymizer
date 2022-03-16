@@ -9,27 +9,27 @@ spring:
       trust-store-password: ${SSL_TRUST_STORE_PASSWORD}
       key-store-location: file://${SSL_KEY_STORE_LOCATION_INTERNAL:/opt/kafka-pseudonymiser/ssl/keystore.jks}
       key-store-password: ${SSL_KEY_STORE_PASSWORD}
+    producer:
+      compression-type: gzip
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.miracum.kafka.serializers.KafkaFhirSerializer
 
   cloud:
     stream:
-      function.definition: process
       bindings:
         process-in-0:
-          destination: test123a,test123b,test123c
-        process-out-0:
-          destination: test12345a
-      kafka:
-        streams:
-          binder:
-            applicationId: kafka-pseudonymizer
-            configuration:
-              compression.type: gzip
-              max.request.size: 5242880
-            deserializationExceptionHandler: sendToDlq
+          destination: ${INPUT_TOPIC:fhir-patient,fhir-lab,fhir-lufu}
+
 
 services:
   pseudonymizer:
     url: "http://localhost:5000/fhir"
+
+  kafka:
+    enabled: true
+    generate-output-topic:
+      match-expression: "fhir\\-"
+      replace-with: "fhir-psn-"
 
 
 server:

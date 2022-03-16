@@ -5,19 +5,21 @@ services:
   kcat1:
     image: edenhill/kcat:1.7.1
     entrypoint: ""
-    command: /bin/sh -c 'kcat -P -b kafka:19092 -X message.max.bytes=100000000 -t test123a /data/*'
+    command: /bin/sh -c 'kcat -P -b kafka:19092 -X message.max.bytes=100000000  -t fhir-patient /data/* '
     volumes:
       - ${DATA_DIR:-./test-data}:/data:ro
+
   kcat2:
     image: edenhill/kcat:1.7.1
     entrypoint: ""
-    command: /bin/sh -c 'kcat -P -b kafka:19092 -X message.max.bytes=100000000 -t test123b /data/*'
+    command: /bin/sh -c 'kcat -P -b kafka:19092 -X message.max.bytes=100000000  -t fhir-lufu /data/*'
     volumes:
       - ${DATA_DIR:-./test-data}:/data:ro
+
   kcat3:
     image: edenhill/kcat:1.7.1
     entrypoint: ""
-    command: /bin/sh -c 'kcat -P -b kafka:19092 -X message.max.bytes=100000000 -t test123c /data/*'
+    command: /bin/sh -c 'kcat -P -b kafka:19092 -X message.max.bytes=100000000 -t fhir-lab /data/*'
     volumes:
       - ${DATA_DIR:-./test-data}:/data:ro
 
