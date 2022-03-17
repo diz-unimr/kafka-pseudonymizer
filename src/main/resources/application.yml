@@ -21,7 +21,8 @@ spring:
         process-in-0:
           destination: ${INPUT_TOPIC:fhir-patient,fhir-lab,fhir-lufu}
           group: pseudonymizer
-          useNativeDecoding: true
+          consumer:
+            useNativeDecoding: true
         process-out-0:
           producer:
             useNativeEncoding: true
@@ -36,8 +37,6 @@ spring:
             producer:
               configuration:
                 compression.type: ${COMPRESSION_TYPE:gzip}
-                key-serializer: org.apache.kafka.common.serialization.StringSerializer
-                value-serializer: org.miracum.kafka.serializers.KafkaFhirSerializer
 
 
 services:
