@@ -36,6 +36,8 @@ spring:
             producer:
               configuration:
                 compression.type: ${COMPRESSION_TYPE:gzip}
+                key-serializer: org.apache.kafka.common.serialization.StringSerializer
+                value-serializer: org.miracum.kafka.serializers.KafkaFhirSerializer
 
 
 services:
@@ -46,7 +48,7 @@ services:
     enabled: true
     generate-output-topic:
       match-expression: "fhir\\-"
-      replace-with: "fhir-psn-"
+      replace-with: "psn-fhir-"
 
 
 server:
