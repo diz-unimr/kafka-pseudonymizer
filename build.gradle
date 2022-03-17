@@ -61,7 +61,7 @@ dependencies {
 	implementation "io.micrometer:micrometer-core:1.7.4"
 
 	// mapper
-	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+//	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 
 	// https://mvnrepository.com/artifact/net.logstash.logback/logstash-logback-encoder
 	implementation group: 'net.logstash.logback', name: 'logstash-logback-encoder', version: '7.0.1'

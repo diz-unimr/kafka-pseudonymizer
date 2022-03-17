@@ -1,9 +1,7 @@
 package de.unimarburg.diz.kafkapseudonymizer;
 
 
-import org.apache.kafka.streams.kstream.KStream;
 import org.hl7.fhir.r4.model.Bundle;
-import org.hl7.fhir.r4.model.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,9 +15,7 @@ import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.messaging.Message;
 
-@Component
 @Service
-@Configuration
 public class Processor {
 
     private final PseudonymizerClient pseudonymizerClient;
@@ -47,7 +43,7 @@ public class Processor {
                 message.getHeaders().getOrDefault(KafkaHeaders.RECEIVED_MESSAGE_KEY, "").toString();
             // build new message and its key
             var messageBuilder =
-                MessageBuilder.withPayload(processed_msg)
+                MessageBuilder.withPayload(bundle)
                     .setHeaderIfAbsent(KafkaHeaders.MESSAGE_KEY, messageKey);
 
             // Get incoming topic

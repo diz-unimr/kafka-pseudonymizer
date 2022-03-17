@@ -16,9 +16,26 @@ spring:
 
   cloud:
     stream:
+#      function.definition: process
       bindings:
         process-in-0:
           destination: ${INPUT_TOPIC:fhir-patient,fhir-lab,fhir-lufu}
+          group: pseudonymizer
+          useNativeDecoding: true
+        process-out-0:
+          producer:
+            useNativeEncoding: true
+      kafka:
+        bindings:
+          process-in-0:
+            consumer:
+              configuration:
+                key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
+                value.deserializer: org.miracum.kafka.serializers.KafkaFhirDeserializer
+          process-out-0:
+            producer:
+              configuration:
+                compression.type: ${COMPRESSION_TYPE:gzip}
 
 
 services:
