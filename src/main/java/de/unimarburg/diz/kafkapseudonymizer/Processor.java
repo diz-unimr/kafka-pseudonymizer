@@ -2,6 +2,8 @@ package de.unimarburg.diz.kafkapseudonymizer;
 
 
 import org.hl7.fhir.r4.model.Bundle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,6 +20,7 @@ import org.springframework.messaging.Message;
 @Service
 public class Processor {
 
+    private static final Logger log = LoggerFactory.getLogger(Processor.class);
     private final PseudonymizerClient pseudonymizerClient;
     private String generateTopicMatchExpression;
     private String generateTopicReplacement;
@@ -43,12 +46,12 @@ public class Processor {
                 message.getHeaders().getOrDefault(KafkaHeaders.RECEIVED_MESSAGE_KEY, "").toString();
             // build new message and its key
             var messageBuilder =
-                MessageBuilder.withPayload(bundle)
+                MessageBuilder.withPayload(processed_msg)
                     .setHeaderIfAbsent(KafkaHeaders.MESSAGE_KEY, messageKey);
 
             // Get incoming topic
             var inputTopic = message.getHeaders().get(KafkaHeaders.RECEIVED_TOPIC).toString();
-            System.out.println("Incoming TOPIC: "+ inputTopic);
+            log.debug("Incoming TOPIC: "+ inputTopic);
             // send the bundle to the respective to input topic
             var outputTopic = computeOutputTopicFromInputTopic(inputTopic);
             outputTopic.ifPresent(
@@ -59,7 +62,7 @@ public class Processor {
     }
 
 
-    private Optional<String> computeOutputTopicFromInputTopic(String inputTopic) {
+    public Optional<String> computeOutputTopicFromInputTopic(String inputTopic) {
         if (StringUtils.isNotBlank(generateTopicMatchExpression)
             && StringUtils.isNotBlank(generateTopicReplacement)) {
             var outputTopic =
