@@ -48,7 +48,6 @@ public class Processor {
             var messageBuilder =
                 MessageBuilder.withPayload(processed_msg)
                     .setHeaderIfAbsent(KafkaHeaders.MESSAGE_KEY, messageKey);
-
             // Get incoming topic
             var inputTopic = message.getHeaders().get(KafkaHeaders.RECEIVED_TOPIC).toString();
             log.debug("Incoming TOPIC: "+ inputTopic);
@@ -56,7 +55,6 @@ public class Processor {
             var outputTopic = computeOutputTopicFromInputTopic(inputTopic);
             outputTopic.ifPresent(
                 s -> messageBuilder.setHeader("spring.cloud.stream.sendto.destination", s));
-
             return messageBuilder.build();
         };
     }

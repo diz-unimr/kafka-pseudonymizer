@@ -19,7 +19,7 @@ spring:
 #      function.definition: process
       bindings:
         process-in-0:
-          destination: ${INPUT_TOPIC:fhir-patient,fhir-lab,fhir-lufu}
+          destination: ${INPUT_TOPIC:fhir-patient,fhir-lab,fhir-lufu,lufu-fhir}
           group: pseudonymizer
           consumer:
             useNativeDecoding: true
