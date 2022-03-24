@@ -18,7 +18,7 @@ spring:
     stream:
       bindings:
         process-in-0:
-          destination: ${INPUT_TOPIC:fhir-patient,fhir-lab,fhir-lufu,lufu-fhir}
+          destination: ${INPUT_TOPIC:fhir-patient,fhir-lab,fhir-lufu}
           group: pseudonymizer
           consumer:
             useNativeDecoding: true

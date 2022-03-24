@@ -141,7 +141,7 @@ services:
   fhir-pseudonymizer:
     image: registry.diz.uni-marburg.de/etl/fhir-pseudonymizer:v2.11.0
     environment:
-      GPAS__URL: "http://localhost:18081/ttp-fhir/fhir/"
+      GPAS__URL: "http://localhost:18080/ttp-fhir/fhir/"
     volumes:
       - ./anonymization.yaml:/etc/anonymization.yaml:ro
     ports:
