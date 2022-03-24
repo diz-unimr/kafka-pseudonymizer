@@ -48,31 +48,31 @@ public class Processor {
             var messageBuilder =
                 MessageBuilder.withPayload(processed_msg)
                     .setHeaderIfAbsent(KafkaHeaders.MESSAGE_KEY, messageKey);
-
             // Get incoming topic
             var inputTopic = message.getHeaders().get(KafkaHeaders.RECEIVED_TOPIC).toString();
             log.debug("Incoming TOPIC: "+ inputTopic);
             // send the bundle to the respective to input topic
             var outputTopic = computeOutputTopicFromInputTopic(inputTopic);
-            outputTopic.ifPresent(
-                s -> messageBuilder.setHeader("spring.cloud.stream.sendto.destination", s));
-
+            messageBuilder.setHeader("spring.cloud.stream.sendto.destination", outputTopic);
             return messageBuilder.build();
         };
     }
 
 
-    public Optional<String> computeOutputTopicFromInputTopic(String inputTopic) {
+    public String computeOutputTopicFromInputTopic(String inputTopic) {
+
         if (StringUtils.isNotBlank(generateTopicMatchExpression)
             && StringUtils.isNotBlank(generateTopicReplacement)) {
-            var outputTopic =
-                inputTopic.replaceFirst(generateTopicMatchExpression, generateTopicReplacement);
+            String matches = inputTopic.replaceFirst(generateTopicMatchExpression, generateTopicReplacement);
 
-            return Optional.of(outputTopic);
+            if (inputTopic.equals(matches)) {
+                throw new IllegalArgumentException("expression given at services.kafka.generate-output-topic.match-expression not matched  ");
+            }
+
+            return matches;
         }
+        throw new IllegalArgumentException("empty services.kafka.generate-output-topic.match-expression or services.kafka.generate-output-topic.replace-with");
 
-        return Optional.empty();
     }
-
     }
 

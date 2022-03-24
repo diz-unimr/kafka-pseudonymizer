@@ -30,61 +30,6 @@ services:
     depends_on:
       - zoo
 
-#  kafka-schema-registry:
-#    image: confluentinc/cp-schema-registry:5.5.0
-#    ports:
-#      - "8081:8081"
-#    environment:
-#      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: PLAINTEXT://kafka:19092
-#      SCHEMA_REGISTRY_HOST_NAME: kafka-schema-registry
-#      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
-#    depends_on:
-#      - zoo
-#      - kafka
-
-#  kafka-rest-proxy:
-#    image: confluentinc/cp-kafka-rest:5.5.0
-#    ports:
-#      - "8082:8082"
-#    environment:
-#      KAFKA_REST_LISTENERS: http://0.0.0.0:8082/
-#      KAFKA_REST_SCHEMA_REGISTRY_URL: http://kafka-schema-registry:8081/
-#      KAFKA_REST_HOST_NAME: kafka-rest-proxy
-#      KAFKA_REST_BOOTSTRAP_SERVERS: PLAINTEXT://kafka:19092
-#      KAFKA_REST_CONSUMER_REQUEST_TIMEOUT_MS: 30000
-#    depends_on:
-#      - zoo
-#      - kafka
-
-#
-#  kafka-connect:
-#    image: confluentinc/cp-kafka-connect:5.5.0
-#    ports:
-#      - "8083:8083"
-#    environment:
-#      CONNECT_BOOTSTRAP_SERVERS: kafka:19092
-#      CONNECT_REST_PORT: 8083
-#      CONNECT_GROUP_ID: compose-connect-group
-#      CONNECT_CONFIG_STORAGE_TOPIC: docker-connect-configs
-#      CONNECT_OFFSET_STORAGE_TOPIC: docker-connect-offsets
-#      CONNECT_STATUS_STORAGE_TOPIC: docker-connect-status
-#      CONNECT_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
-#      CONNECT_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
-#      CONNECT_INTERNAL_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
-#      CONNECT_INTERNAL_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
-#      CONNECT_REST_ADVERTISED_HOST_NAME: kafka-connect
-#      CONNECT_LOG4J_ROOT_LOGLEVEL: INFO
-#      CONNECT_LOG4J_LOGGERS: "org.apache.kafka.connect.runtime.rest=WARN,org.reflections=ERROR"
-#      CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: 1
-#      CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: 1
-#      CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 1
-#      CONNECT_PLUGIN_PATH: /usr/share/java
-#    depends_on:
-#      - zoo
-#      - kafka
-#      - kafka-rest-proxy
-
-
   akhq:
     image: tchiotludo/akhq:0.18.0
     environment:
@@ -100,22 +45,10 @@ services:
     ports:
       - "8088:8080"
 
-#  gpas:
-#    image: harbor.miracum.org/gpas/gpas:1.10.0-20201221
-#    ports:
-#      - "18080:8080"
   gpas:
-    image: tmfev/gpas:1.9.1
-    environment:
-      JAVA_OPTS: >-
-        -Xms512m
-        -Xmx1G
-        -XX:MetaspaceSize=96M
-        -XX:MaxMetaspaceSize=256m
-        -Djava.net.preferIPv4Stack=true
-        -Djava.awt.headless=true
+    image: harbor.miracum.org/gpas/gpas:1.10.0-20201221
     ports:
-      - "8080:8080"
+      - "18080:8080"
 
   gpasinit-patient:
     image: curlimages/curl:7.75.0
@@ -131,7 +64,7 @@ services:
                     <name>PATIENT</name>
                     <checkDigitClass>org.emau.icmvc.ganimed.ttp.psn.generator.ReedSolomonLagrange</checkDigitClass>
                     <alphabet>org.emau.icmvc.ganimed.ttp.psn.alphabets.Symbol31</alphabet>
-                    <properties>PSN_LENGTH=31;PSN_PREFIX=p;INCLUDE_PREFIX_IN_CHECK_DIGIT_CALCULATION=false;PSNS_DELETABLE=true;MAX_DETECTED_ERRORS=2;</properties>
+                    <config>PSN_LENGTH=31;PSN_PREFIX=p;INCLUDE_PREFIX_IN_CHECK_DIGIT_CALCULATION=false;PSNS_DELETABLE=true;MAX_DETECTED_ERRORS=2;</config>
                     <comment>PATIENT Domain</comment>
                   </domainDTO>
                 </psn:addDomain>
@@ -160,7 +93,7 @@ services:
                     <name>ENCOUNTER</name>
                     <checkDigitClass>org.emau.icmvc.ganimed.ttp.psn.generator.ReedSolomonLagrange</checkDigitClass>
                     <alphabet>org.emau.icmvc.ganimed.ttp.psn.alphabets.Symbol31</alphabet>
-                    <properties>PSN_LENGTH=31;PSN_PREFIX=p;INCLUDE_PREFIX_IN_CHECK_DIGIT_CALCULATION=false;PSNS_DELETABLE=true;MAX_DETECTED_ERRORS=2;</properties>
+                    <config>PSN_LENGTH=31;PSN_PREFIX=p;INCLUDE_PREFIX_IN_CHECK_DIGIT_CALCULATION=false;PSNS_DELETABLE=true;MAX_DETECTED_ERRORS=2;</config>
                     <comment>ENCOUNTER Domain</comment>
                   </domainDTO>
                 </psn:addDomain>
@@ -189,7 +122,7 @@ services:
                     <name>ORDER</name>
                     <checkDigitClass>org.emau.icmvc.ganimed.ttp.psn.generator.ReedSolomonLagrange</checkDigitClass>
                     <alphabet>org.emau.icmvc.ganimed.ttp.psn.alphabets.Symbol31</alphabet>
-                    <properties>PSN_LENGTH=31;PSN_PREFIX=p;INCLUDE_PREFIX_IN_CHECK_DIGIT_CALCULATION=false;PSNS_DELETABLE=true;MAX_DETECTED_ERRORS=2;</properties>
+                    <config>PSN_LENGTH=31;PSN_PREFIX=p;INCLUDE_PREFIX_IN_CHECK_DIGIT_CALCULATION=false;PSNS_DELETABLE=true;MAX_DETECTED_ERRORS=2;</config>
                     <comment>ORDER Domain</comment>
                   </domainDTO>
                 </psn:addDomain>
@@ -206,9 +139,9 @@ services:
 
 
   fhir-pseudonymizer:
-    image: registry.diz.uni-marburg.de/docker/fhir-pseudonymizer:1.6.0
+    image: registry.diz.uni-marburg.de/etl/fhir-pseudonymizer:v2.11.0
     environment:
-      GPAS__URL: "http://gpas:8080/gpas/gpasService"
+      GPAS__URL: "http://gpas:8080/ttp-fhir/fhir/"
     volumes:
       - ./anonymization.yaml:/etc/anonymization.yaml:ro
     ports:
