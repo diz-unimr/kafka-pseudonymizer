@@ -1,8 +1,8 @@
 plugins {
-	id 'org.springframework.boot' version '2.5.5'
-	id 'io.spring.dependency-management' version '1.0.10.RELEASE'
-	id 'java'
-	id 'jacoco'
+    id 'org.springframework.boot' version '2.5.5'
+    id 'io.spring.dependency-management' version '1.0.10.RELEASE'
+    id 'java'
+    id 'jacoco'
 }
 
 group = 'de.unimarburg.diz'
@@ -10,131 +10,129 @@ version = '0.0.2-SNAPSHOT'
 sourceCompatibility = '11'
 
 repositories {
-	mavenCentral()
-	maven { url 'https://repo.spring.io/snapshot' }
-	maven { url 'https://repo.spring.io/milestone' }
+    mavenCentral()
+    maven { url 'https://repo.spring.io/snapshot' }
+    maven { url 'https://repo.spring.io/milestone' }
 }
 
 sourceSets {
-	intTest {
-		compileClasspath += sourceSets.main.output
-		runtimeClasspath += sourceSets.main.output
-	}
+    intTest {
+        compileClasspath += sourceSets.main.output
+        runtimeClasspath += sourceSets.main.output
+    }
 }
 
 configurations {
-	intTestImplementation.extendsFrom implementation
-	intTestRuntimeOnly.extendsFrom runtimeOnly
+    intTestImplementation.extendsFrom implementation
+    intTestRuntimeOnly.extendsFrom runtimeOnly
 }
 
 task integrationTest(type: Test) {
-	description = 'Runs integration tests.'
-	group = 'verification'
+    description = 'Runs integration tests.'
+    group = 'verification'
 
-	testClassesDirs = sourceSets.intTest.output.classesDirs
-	classpath = sourceSets.intTest.runtimeClasspath
-	shouldRunAfter test
+    testClassesDirs = sourceSets.intTest.output.classesDirs
+    classpath = sourceSets.intTest.runtimeClasspath
+    shouldRunAfter test
 }
 
 check.dependsOn integrationTest
 
 ext {
-	set('springBootVersion', "2.5.5")
-	set('springCloudVersion', "2020.0.4")
-	set("hapiFhirVersion", "5.5.1")
-	set('testContainersVersion', '1.16.0')
+    set('springBootVersion', "2.6.4")
+    set('springCloudVersion', "2020.0.4")
+    set("hapiFhirVersion", "5.5.1")
+    set('testContainersVersion', '1.16.3')
 }
 
 dependencies {
-	// spring cloud stream kafka
-	implementation "org.springframework.kafka:spring-kafka"
-	implementation 'org.springframework.cloud:spring-cloud-stream'
-	implementation 'org.springframework.cloud:spring-cloud-stream-binder-kafka-streams'
-	implementation 'org.springframework.cloud:spring-cloud-stream-binder-kafka'
+    // spring cloud stream kafka
+    implementation "org.springframework.kafka:spring-kafka"
+    implementation 'org.springframework.cloud:spring-cloud-stream'
+    implementation 'org.springframework.cloud:spring-cloud-stream-binder-kafka-streams'
+    implementation 'org.springframework.cloud:spring-cloud-stream-binder-kafka'
 
-	// spring boot
-	implementation "org.springframework.boot:spring-boot-starter-web:$springBootVersion"
-	implementation "org.springframework.boot:spring-boot-starter-actuator:$springBootVersion"
+    // spring boot
+    implementation "org.springframework.boot:spring-boot-starter-web:$springBootVersion"
+    implementation "org.springframework.boot:spring-boot-starter-actuator:$springBootVersion"
 
-	// metrics
-	implementation "io.micrometer:micrometer-registry-prometheus:1.7.4"
-	implementation "io.micrometer:micrometer-core:1.7.4"
-
-	// mapper
-//	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
-
-	// https://mvnrepository.com/artifact/net.logstash.logback/logstash-logback-encoder
-	implementation group: 'net.logstash.logback', name: 'logstash-logback-encoder', version: '7.0.1'
-
-	// hapi fhir
-	implementation "ca.uhn.hapi.fhir:org.hl7.fhir.r4:$hapiFhirVersion"
-	implementation "ca.uhn.hapi.fhir:hapi-fhir-base:$hapiFhirVersion"
-	implementation "ca.uhn.hapi.fhir:hapi-fhir-client:$hapiFhirVersion"
-	implementation "ca.uhn.hapi.fhir:hapi-fhir-structures-r4:$hapiFhirVersion"
-	implementation "ca.uhn.hapi.fhir:hapi-fhir-structures-r5:$hapiFhirVersion"
-	implementation "ca.uhn.hapi.fhir:hapi-fhir-validation:$hapiFhirVersion"
-	implementation "ca.uhn.hapi.fhir:hapi-fhir-validation-resources-r4:$hapiFhirVersion"
-	implementation 'org.miracum:kafka-fhir-serializer:1.0.1'
-
-	// unit tests
-	testImplementation 'org.springframework.cloud:spring-cloud-stream'
-	testImplementation 'org.apache.kafka:kafka-streams-test-utils:2.8.0'
-
-	testImplementation('org.springframework.boot:spring-boot-starter-test') {
-		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
-	}
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testImplementation 'org.springframework.kafka:spring-kafka-test:2.7.6'
-	testImplementation 'org.assertj:assertj-core:3.20.2'
+    // metrics
+    implementation 'io.micrometer:micrometer-registry-prometheus:1.8.3'
+    implementation 'io.micrometer:micrometer-core:1.8.3'
 
 
-	// integration tests
-	intTestImplementation 'org.springframework.kafka:spring-kafka-test:2.7.6'
-	intTestImplementation('org.springframework.boot:spring-boot-starter-test') {
-		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
-	}
-	intTestImplementation "org.testcontainers:kafka:$testContainersVersion"
-	intTestImplementation "org.testcontainers:junit-jupiter:$testContainersVersion"
-	intTestImplementation 'org.awaitility:awaitility:4.1.0'
-	intTestImplementation 'org.assertj:assertj-core:3.17.2'
+    // https://mvnrepository.com/artifact/net.logstash.logback/logstash-logback-encoder
+    implementation group: 'net.logstash.logback', name: 'logstash-logback-encoder', version: '7.0.1'
+
+    // hapi fhir
+    implementation "ca.uhn.hapi.fhir:org.hl7.fhir.r4:$hapiFhirVersion"
+    implementation "ca.uhn.hapi.fhir:hapi-fhir-base:$hapiFhirVersion"
+    implementation "ca.uhn.hapi.fhir:hapi-fhir-client:$hapiFhirVersion"
+    implementation "ca.uhn.hapi.fhir:hapi-fhir-structures-r4:$hapiFhirVersion"
+    implementation "ca.uhn.hapi.fhir:hapi-fhir-structures-r5:$hapiFhirVersion"
+    implementation "ca.uhn.hapi.fhir:hapi-fhir-validation:$hapiFhirVersion"
+    implementation "ca.uhn.hapi.fhir:hapi-fhir-validation-resources-r4:$hapiFhirVersion"
+    implementation 'org.miracum:kafka-fhir-serializer:1.0.1'
+
+    // unit tests
+    testImplementation 'org.springframework.cloud:spring-cloud-stream'
+    testImplementation 'org.apache.kafka:kafka-streams-test-utils:3.1.0'
+
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.kafka:spring-kafka-test:2.8.3'
+    testImplementation 'org.assertj:assertj-core:3.22.0'
+
+
+    // integration tests
+    intTestImplementation 'org.springframework.kafka:spring-kafka-test:2.7.6'
+    intTestImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
+    intTestImplementation "org.testcontainers:kafka:$testContainersVersion"
+    intTestImplementation "org.testcontainers:junit-jupiter:$testContainersVersion"
+    intTestImplementation 'org.awaitility:awaitility:4.1.0'
+    intTestImplementation 'org.assertj:assertj-core:3.22.0'
 
 
 }
 
 dependencyManagement {
-	imports {
-		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
-	}
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
 }
 
 test {
-	useJUnitPlatform()
+    useJUnitPlatform()
 }
 
 integrationTest {
-	useJUnitPlatform()
+    useJUnitPlatform()
 }
 
 jacoco {
-	toolVersion = "0.8.7"
-	reportsDirectory = layout.buildDirectory.dir('jacoco-reports')
+    toolVersion = "0.8.7"
+    reportsDirectory = layout.buildDirectory.dir('jacoco-reports')
 }
 
 jacocoTestReport {
-	reports {
-		xml.required = true
-		csv.required = true
-		csv.outputLocation = layout.buildDirectory.file('jacoco/coverage.csv')
-		html.outputLocation = layout.buildDirectory.dir('jacoco/html')
-	}
+    reports {
+        xml.required = true
+        csv.required = true
+        csv.outputLocation = layout.buildDirectory.file('jacoco/coverage.csv')
+        html.outputLocation = layout.buildDirectory.dir('jacoco/html')
+    }
 }
 
 jar {
-	enabled = false
+    enabled = false
 }
 
 bootJar {
-	mainClass.set('de.unimarburg.diz.kafkapseudonymizer.Application')
+    mainClass.set('de.unimarburg.diz.kafkapseudonymizer.Application')
 }
 
 ext['log4j2.version'] = '2.17.1'

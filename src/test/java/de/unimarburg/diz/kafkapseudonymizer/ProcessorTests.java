@@ -44,17 +44,16 @@ public class ProcessorTests {
     @CsvSource(value = {"fhir-patient:psn-fhir-patient","lab-fhir:lab-fhir"},delimiter = ':')
     public void process_SetsMessageHeaders(String input,String extected) {
         // arrange
-        var inputBundle = new Bundle();
-        var inputMessage = new GenericMessage<>(inputBundle);
         var clientMock = Mockito.mock(PseudonymizerClient.class);
         Mockito.when(clientMock.process(any())).thenReturn(new Bundle());
         var processor = new Processor(clientMock,"fhir\\-", "psn-fhir-");
-        var pseudo = clientMock.process(inputMessage.getPayload());
-        var message_with_header = MessageBuilder.withPayload(pseudo)
+        var message_with_header = MessageBuilder.withPayload(new Bundle())
             .setHeaderIfAbsent(KafkaHeaders.RECEIVED_TOPIC, input);
+
         //act
         var result = processor.process().apply(message_with_header.build());
         var inputTopic =result.getHeaders().get("spring.cloud.stream.sendto.destination").toString();
+
         //assert
         assertEquals(extected,inputTopic);
     }
