@@ -63,14 +63,13 @@ public class Processor {
 
         if (StringUtils.isNotBlank(generateTopicMatchExpression)
             && StringUtils.isNotBlank(generateTopicReplacement)) {
-            //boolean matches = inputTopic.matches(generateTopicMatchExpression);
-            boolean matches = inputTopic.regionMatches(0, generateTopicMatchExpression, 0, 4);
+            String matches = inputTopic.replaceFirst(generateTopicMatchExpression, generateTopicReplacement);
 
-            if (!matches) {
+            if (inputTopic.equals(matches)) {
                 throw new IllegalArgumentException("expression given at services.kafka.generate-output-topic.match-expression not matched  ");
             }
 
-            return inputTopic.replaceFirst(generateTopicMatchExpression, generateTopicReplacement);
+            return matches;
         }
         throw new IllegalArgumentException("empty services.kafka.generate-output-topic.match-expression or services.kafka.generate-output-topic.replace-with");
 

@@ -35,8 +35,7 @@ public class ProcessorTests {
     private static Stream<Arguments> provideStringForInputAndOutputTopics(){
         return Stream.of(
             Arguments.of("fhir-lab","psn-fhir-lab"),
-            Arguments.of("fhir-lufu","psn-fhir-lufu"),
-            Arguments.of("fhri-lab","psn-fhir-lab")
+            Arguments.of("fhir-lufu","psn-fhir-lufu")
         );
     }
 
@@ -70,7 +69,6 @@ public class ProcessorTests {
             var processor = new Processor(null,"fhir\\-", "psn-fhir-");
             processor.computeOutputTopicFromInputTopic(inputTopic);
             });
-
     }
 
     @Test
