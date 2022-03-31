@@ -5,9 +5,9 @@ spring:
     bootstrapServers: ${BOOTSTRAP_SERVERS:localhost:9092}
     security.protocol: ${SECURITY_PROTOCOL:PLAINTEXT}
     ssl:
-      trust-store-location: file://${SSL_TRUST_STORE_LOCATION_INTERNAL:/opt/kafka-pseudonymiser/ssl/truststore.jks}
+      trust-store-location: file://${SSL_TRUST_STORE_LOCATION_INTERNAL:/opt/kafka-pseudonymizer/ssl/truststore.jks}
       trust-store-password: ${SSL_TRUST_STORE_PASSWORD}
-      key-store-location: file://${SSL_KEY_STORE_LOCATION_INTERNAL:/opt/kafka-pseudonymiser/ssl/keystore.jks}
+      key-store-location: file://${SSL_KEY_STORE_LOCATION_INTERNAL:/opt/kafka-pseudonymizer/ssl/keystore.jks}
       key-store-password: ${SSL_KEY_STORE_PASSWORD}
     producer:
       compression-type: gzip
@@ -18,7 +18,7 @@ spring:
     stream:
       bindings:
         process-in-0:
-          destination: ${INPUT_TOPIC:fhir-patient,fhir-lab,fhir-lufu}
+          destination:
           group: pseudonymizer
           consumer:
             useNativeDecoding: true
@@ -44,8 +44,8 @@ services:
 
   kafka:
     generate-output-topic:
-      match-expression: "fhir\\-"
-      replace-with: "psn-fhir-"
+      match-expression: "-fhir"
+      replace-with: "-fhir-psn"
 
 
 server:
