@@ -19,8 +19,8 @@ public class Processor {
 
     private static final Logger log = LoggerFactory.getLogger(Processor.class);
     private final PseudonymizerClient pseudonymizerClient;
-    private String generateTopicMatchExpression;
-    private String generateTopicReplacement;
+    private final String generateTopicMatchExpression;
+    private final String generateTopicReplacement;
 
     @Autowired
     public Processor(PseudonymizerClient pseudonymizerClient,
@@ -38,9 +38,9 @@ public class Processor {
     public Function<Message<Bundle>, Message<Bundle>> process() {
         return message -> {
             var bundle = message.getPayload();
-            //pseudonomized the bundle
+            //pseudonymize the bundle
             var processed_msg = pseudonymizerClient.process(bundle);
-            // Get message header key
+            // get message header key
             var messageKey = message
                 .getHeaders()
                 .getOrDefault(KafkaHeaders.RECEIVED_MESSAGE_KEY, "")

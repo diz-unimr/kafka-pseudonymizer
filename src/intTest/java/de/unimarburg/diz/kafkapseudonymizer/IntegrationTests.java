@@ -24,8 +24,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.kafka.test.utils.KafkaTestUtils;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.TestPropertySource;
 
 @SpringBootTest
+@TestPropertySource(properties = {"services.kafka.generate-output-topic.match-expression=fhir",
+    "services.kafka.generate-output-topic.replace-with=psn-fhir"})
 class IntegrationTests extends TestContainerBase {
 
     private static final String inputTopic = "fhir-test";
