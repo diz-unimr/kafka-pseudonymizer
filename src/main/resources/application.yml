@@ -18,17 +18,21 @@ spring:
     stream:
       bindings:
         process-in-0:
-          destination:
+          destination: test-fhir-(?!psn).*
           group: pseudonymizer
           consumer:
             useNativeDecoding: true
         process-out-0:
+          destination: ''
           producer:
             useNativeEncoding: true
       kafka:
+        binder:
+          autoCreateTopics: false
         bindings:
           process-in-0:
             consumer:
+              destinationIsPattern: true
               configuration:
                 key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
                 value.deserializer: org.miracum.kafka.serializers.KafkaFhirDeserializer
@@ -62,4 +66,4 @@ management:
 logging:
   level:
     org.springframework.kafka.config: info
-    de.unimarburg.diz.kafkastreamPseudonymiser: debug
+    de.unimarburg.diz.kafkapseudonymizer: debug
