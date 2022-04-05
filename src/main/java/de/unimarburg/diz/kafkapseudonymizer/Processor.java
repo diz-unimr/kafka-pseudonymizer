@@ -52,27 +52,27 @@ public class Processor {
     @Bean
     public Function<Message<Bundle>, Message<Bundle>> process() {
         return message -> {
-            // incoming topic
-            var inputTopic = message
-                .getHeaders()
-                .get(KafkaHeaders.RECEIVED_TOPIC)
-                .toString();
-            log.debug("Incoming TOPIC: " + inputTopic);
-            // determine output topic
-            var outputTopic = generateOutputTopic(inputTopic);
-
-            //pseudonymize the bundle
-            var bundle = message.getPayload();
-            var processed_msg = pseudonymizerClient.process(bundle);
-
             // get message header key
             var messageKey = message
                 .getHeaders()
                 .getOrDefault(KafkaHeaders.RECEIVED_MESSAGE_KEY, "")
                 .toString();
+            // incoming topic
+            var inputTopic = message
+                .getHeaders()
+                .get(KafkaHeaders.RECEIVED_TOPIC)
+                .toString();
+            log.info("Processing message {} from topic: {}", messageKey, inputTopic);
+            // determine output topic
+            var outputTopic = generateOutputTopic(inputTopic);
+
+            //pseudonymize the bundle
+            var bundle = message.getPayload();
+            var processed = pseudonymizerClient.process(bundle);
+
             // build new message with payload
             var messageBuilder = MessageBuilder
-                .withPayload(processed_msg)
+                .withPayload(processed)
                 .setHeaderIfAbsent(KafkaHeaders.MESSAGE_KEY, messageKey);
             messageBuilder.setHeader("spring.cloud.stream.sendto.destination", outputTopic);
 

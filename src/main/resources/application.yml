@@ -63,4 +63,4 @@ management:
 logging:
   level:
     org.springframework.kafka.config: info
-    de.unimarburg.diz.kafkapseudonymizer: debug
+    de.unimarburg.diz.kafkapseudonymizer: info
