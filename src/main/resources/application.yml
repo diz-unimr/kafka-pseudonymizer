@@ -18,17 +18,14 @@ spring:
     stream:
       bindings:
         process-in-0:
-          destination: test-fhir-(?!psn).*
+          destination: test-fhir(?!-psn).*
           group: pseudonymizer
           consumer:
             useNativeDecoding: true
         process-out-0:
-          destination: ''
           producer:
             useNativeEncoding: true
       kafka:
-        binder:
-          autoCreateTopics: false
         bindings:
           process-in-0:
             consumer:

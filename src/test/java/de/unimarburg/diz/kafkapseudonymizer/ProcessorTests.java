@@ -1,6 +1,7 @@
 package de.unimarburg.diz.kafkapseudonymizer;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -18,24 +19,20 @@ import org.springframework.kafka.support.KafkaHeaders;
 
 public class ProcessorTests {
 
-    private final String emptyExpressionExceptionMessage = "Empty 'services.kafka.generate-output-topic.match-expression' or 'services.kafka.generate-output-topic.replace-with'";
-
     private static Stream<Arguments> provideStringForInputAndOutputTopics() {
         return Stream.of(Arguments.of("fhir-lab", "psn-fhir-lab"),
             Arguments.of("fhir-lufu", "psn-fhir-lufu"));
     }
 
     @ParameterizedTest
-    //@CsvSource(value = {"fhir-lab:psn-fhir-lab","fhir-lufu:psn-fhir-lufu"}, delimiter = ':')
     @MethodSource("provideStringForInputAndOutputTopics")
-    public void computeOutputTopicFromInputTopic_UsesMatchExpression(String input,
-        String extected) {
+    public void generateOutputTopic_UsesMatchExpression(String input, String expected) {
         // arrange
-        var processor = new Processor(null, "fhir\\-", "psn-fhir-");
+        var processor = new Processor(null, "fhir-", "psn-fhir-", null, false);
         // act
-        var result = processor.computeOutputTopicFromInputTopic(input);
+        var result = processor.generateOutputTopic(input);
         // assert
-        assertThat(result).isEqualTo(extected);
+        assertThat(result).isEqualTo(expected);
     }
 
     @ParameterizedTest
@@ -46,7 +43,7 @@ public class ProcessorTests {
         Mockito
             .when(clientMock.process(any()))
             .thenReturn(new Bundle());
-        var processor = new Processor(clientMock, "fhir\\-", "psn-fhir-");
+        var processor = new Processor(clientMock, "fhir-", "psn-fhir-", null, false);
         var message_with_header = MessageBuilder
             .withPayload(new Bundle())
             .setHeaderIfAbsent(KafkaHeaders.RECEIVED_TOPIC, input);
@@ -71,32 +68,35 @@ public class ProcessorTests {
         // act
         assertThrows(IllegalArgumentException.class, () -> {
             String inputTopic = "test-fhir";
-            var processor = new Processor(null, "fhir\\-", "psn-fhir-");
-            processor.computeOutputTopicFromInputTopic(inputTopic);
+            var processor = new Processor(null, "fhir\\-", "psn-fhir-", null, false);
+            processor.generateOutputTopic(inputTopic);
         });
     }
 
     @Test
-    public void computeOutputTopicFromInputTopic_Empty_MatchExpressionException() {
+    public void generateOutputTopic_Empty_MatchExpressionException() {
 
         // act
-        Throwable exception = assertThrows(IllegalArgumentException.class, () -> {
-            String inputTopic = "test-fhir";
-            var processor = new Processor(null, "", "psn-fhir-");
-            processor.computeOutputTopicFromInputTopic(inputTopic);
-        });
-        assertEquals(emptyExpressionExceptionMessage, exception.getMessage());
+        assertThatExceptionOfType(IllegalArgumentException.class)
+            .isThrownBy(() -> {
+                var inputTopic = "test-fhir";
+                var processor = new Processor(null, "", "psn-fhir-", null, false);
+                processor.generateOutputTopic(inputTopic);
+            })
+            .withMessage(
+                "Property 'services.kafka.generate-output-topic.match-expression' is empty");
     }
 
     @Test
-    public void computeOutputTopicFromInputTopic_Empty_ReplacementExpressionException() {
+    public void generateOutputTopic_Empty_ReplacementExpressionException() {
         // act
-        Throwable exception = assertThrows(IllegalArgumentException.class, () -> {
-            String inputTopic = "test-fhir";
-            var processor = new Processor(null, "fhir\\-", "");
-            processor.computeOutputTopicFromInputTopic(inputTopic);
-        });
-        assertEquals(emptyExpressionExceptionMessage, exception.getMessage());
+        assertThatExceptionOfType(IllegalArgumentException.class)
+            .isThrownBy(() -> {
+                var inputTopic = "test-fhir";
+                var processor = new Processor(null, "fhir-", "", null, false);
+                processor.generateOutputTopic(inputTopic);
+            })
+            .withMessage("Property 'services.kafka.generate-output-topic.replace-with' is empty");
     }
 
 
