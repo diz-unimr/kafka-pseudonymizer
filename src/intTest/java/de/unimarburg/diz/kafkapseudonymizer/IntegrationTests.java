@@ -39,7 +39,7 @@ class IntegrationTests extends TestContainerBase {
         registry.add("spring.kafka.bootstrapServers", kafka::getBootstrapServers);
         registry.add("services.pseudonymizer.url",
             () -> "http://" + fhirPseudonymizer.getHost() + ":"
-                      + fhirPseudonymizer.getFirstMappedPort() + "/fhir");
+                + fhirPseudonymizer.getFirstMappedPort() + "/fhir");
     }
 
     @BeforeAll

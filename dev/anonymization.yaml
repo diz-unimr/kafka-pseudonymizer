@@ -57,4 +57,4 @@ parameters:
   enablePartialAgesForRedact: true
   enablePartialDatesForRedact: true
   enablePartialZipCodesForRedact: true
-  restrictedZipCodeTabulationAreas: [ ]
+  restrictedZipCodeTabulationAreas: []

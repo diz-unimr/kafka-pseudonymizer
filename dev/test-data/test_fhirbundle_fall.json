@@ -36,8 +36,12 @@
         "name": [
           {
             "family": "Levin",
-            "given": ["Henry"],
-            "suffix": ["The 7th"]
+            "given": [
+              "Henry"
+            ],
+            "suffix": [
+              "The 7th"
+            ]
           }
         ],
         "gender": "male",
@@ -146,7 +150,9 @@
         "name": [
           {
             "family": "Wisozk",
-            "given": ["Mariana"]
+            "given": [
+              "Mariana"
+            ]
           }
         ],
         "gender": "male",

@@ -28,8 +28,8 @@ public class PseudonymizerClient {
     private final RetryTemplate retryTemplate;
     private final IGenericClient client;
 
-    public PseudonymizerClient(
-        FhirContext fhirContext, String pseudonymizerUrl, RetryTemplate retryTemplate) {
+    public PseudonymizerClient(FhirContext fhirContext, String pseudonymizerUrl,
+        RetryTemplate retryTemplate) {
         this.client = fhirContext.newRestfulGenericClient(pseudonymizerUrl);
         this.pseudonymizerUrl = pseudonymizerUrl;
         this.retryTemplate = retryTemplate;
@@ -40,21 +40,22 @@ public class PseudonymizerClient {
     }
 
     public Bundle process(Bundle bundle) {
-        log.debug(
-            "Invoking pseudonymization service @ {}", kv("pseudonymizerUrl", pseudonymizerUrl));
+        log.debug("Invoking pseudonymization service @ {}",
+            kv("pseudonymizerUrl", pseudonymizerUrl));
 
         Parameters param = new Parameters();
-        param.addParameter().setName("resource").setResource(bundle);
+        param
+            .addParameter()
+            .setName("resource")
+            .setResource(bundle);
 
-        return retryTemplate.execute(
-            ctx ->
-                client
-                    .operation()
-                    .onServer()
-                    .named("de-identify")
-                    .withParameters(param)
-                    .returnResourceType(Bundle.class)
-                    .execute());
+        return retryTemplate.execute(ctx -> client
+            .operation()
+            .onServer()
+            .named("de-identify")
+            .withParameters(param)
+            .returnResourceType(Bundle.class)
+            .execute());
     }
 
     public static RetryTemplate defaultTemplate() {
@@ -75,16 +76,14 @@ public class PseudonymizerClient {
 
         retryTemplate.setRetryPolicy(retryPolicy);
 
-        retryTemplate.registerListener(
-            new RetryListenerSupport() {
-                @Override
-                public <T, E extends Throwable> void onError(
-                    RetryContext context, RetryCallback<T, E> callback, Throwable throwable) {
-                    log.warn(
-                        "HTTP Error occurred: {}. Retrying {}",
-                        throwable.getMessage(), kv("attempt", context.getRetryCount()));
-                }
-            });
+        retryTemplate.registerListener(new RetryListenerSupport() {
+            @Override
+            public <T, E extends Throwable> void onError(RetryContext context,
+                RetryCallback<T, E> callback, Throwable throwable) {
+                log.warn("HTTP Error occurred: {}. Retrying {}", throwable.getMessage(),
+                    kv("attempt", context.getRetryCount()));
+            }
+        });
 
         return retryTemplate;
     }

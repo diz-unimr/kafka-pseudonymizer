@@ -21,7 +21,7 @@ public class FhirConfiguration {
     @Bean
     @Autowired
     public PseudonymizerClient pseudonymizer(FhirContext fhirContext,
-                                             @Value("${services.pseudonymizer.url}") String pseudonymizerUrl) {
+        @Value("${services.pseudonymizer.url}") String pseudonymizerUrl) {
         return new PseudonymizerClient(fhirContext, pseudonymizerUrl);
     }
 
