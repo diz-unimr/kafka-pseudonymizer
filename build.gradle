@@ -1,6 +1,6 @@
 plugins {
-    id 'org.springframework.boot' version '2.5.5'
-    id 'io.spring.dependency-management' version '1.0.10.RELEASE'
+    id 'org.springframework.boot' version '2.6.6'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id 'java'
     id 'jacoco'
 }
@@ -39,8 +39,8 @@ task integrationTest(type: Test) {
 check.dependsOn integrationTest
 
 ext {
-    set('springBootVersion', "2.6.4")
-    set('springCloudVersion', "2020.0.4")
+    set('springBootVersion', "2.6.7")
+    set('springCloudVersion', "2021.0.1")
     set("hapiFhirVersion", "5.5.1")
     set('testContainersVersion', '1.16.3')
 }
@@ -68,10 +68,16 @@ dependencies {
     implementation "ca.uhn.hapi.fhir:hapi-fhir-base:$hapiFhirVersion"
     implementation "ca.uhn.hapi.fhir:hapi-fhir-client:$hapiFhirVersion"
     implementation "ca.uhn.hapi.fhir:hapi-fhir-structures-r4:$hapiFhirVersion"
-    implementation "ca.uhn.hapi.fhir:hapi-fhir-structures-r5:$hapiFhirVersion"
     implementation "ca.uhn.hapi.fhir:hapi-fhir-validation:$hapiFhirVersion"
     implementation "ca.uhn.hapi.fhir:hapi-fhir-validation-resources-r4:$hapiFhirVersion"
     implementation 'org.miracum:kafka-fhir-serializer:1.0.1'
+
+    implementation('org.springframework.cloud:spring-cloud-function-context:3.2.3') {
+        because 'versions below are vulnerable to CVE-2022-22963'
+    }
+    implementation('org.springframework.cloud:spring-cloud-function-core:3.2.3') {
+        because 'versions below are vulnerable to CVE-2022-22963'
+    }
 
     // unit tests
     testImplementation 'org.springframework.cloud:spring-cloud-stream'
@@ -135,3 +141,4 @@ bootJar {
 }
 
 ext['log4j2.version'] = '2.17.1'
+
