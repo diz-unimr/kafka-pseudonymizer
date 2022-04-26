@@ -37,7 +37,7 @@ public abstract class TestContainerBase {
 
     private static GenericContainer createPseudonymizerContainer(Network network) {
         return new GenericContainer<>(
-            DockerImageName.parse("registry.diz.uni-marburg.de/etl/fhir-pseudonymizer:v2.11.0"))
+            DockerImageName.parse("ghcr.io/miracum/fhir-pseudonymizer:v2.12.0"))
             .withEnv(Collections.singletonMap("GPAS__URL", "http://gpas:8080/ttp-fhir/fhir/"))
             .withClasspathResourceMapping("anonymization.yaml", "/etc/anonymization.yaml",
                 BindMode.READ_ONLY)
