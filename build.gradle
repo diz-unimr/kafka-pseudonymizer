@@ -56,8 +56,8 @@ dependencies {
     implementation "org.springframework.boot:spring-boot-starter-actuator:$springBootVersion"
 
     // metrics
-    implementation 'io.micrometer:micrometer-registry-prometheus:1.8.3'
-    implementation 'io.micrometer:micrometer-core:1.8.3'
+    implementation 'io.micrometer:micrometer-registry-prometheus:1.8.5'
+    implementation 'io.micrometer:micrometer-core:1.8.5'
 
 
     // https://mvnrepository.com/artifact/net.logstash.logback/logstash-logback-encoder
@@ -70,7 +70,7 @@ dependencies {
     implementation "ca.uhn.hapi.fhir:hapi-fhir-structures-r4:$hapiFhirVersion"
     implementation "ca.uhn.hapi.fhir:hapi-fhir-validation:$hapiFhirVersion"
     implementation "ca.uhn.hapi.fhir:hapi-fhir-validation-resources-r4:$hapiFhirVersion"
-    implementation 'org.miracum:kafka-fhir-serializer:1.0.1'
+    implementation 'org.miracum:kafka-fhir-serializer:1.0.2'
 
     implementation('org.springframework.cloud:spring-cloud-function-context:3.2.3') {
         because 'versions below are vulnerable to CVE-2022-22963'
