@@ -7,7 +7,8 @@ plugins {
 
 group = 'de.unimarburg.diz'
 version = '0.0.2-SNAPSHOT'
-sourceCompatibility = '11'
+sourceCompatibility = "17"
+targetCompatibility = "17"
 
 repositories {
     mavenCentral()
@@ -40,9 +41,9 @@ check.dependsOn integrationTest
 
 ext {
     set('springBootVersion', "2.6.7")
-    set('springCloudVersion', "2021.0.1")
-    set("hapiFhirVersion", "5.5.1")
-    set('testContainersVersion', '1.16.3')
+    set('springCloudVersion', "2021.0.2")
+    set("hapiFhirVersion", "5.7.2")
+    set('testContainersVersion', '1.17.1')
 }
 
 dependencies {
@@ -64,7 +65,6 @@ dependencies {
     implementation group: 'net.logstash.logback', name: 'logstash-logback-encoder', version: '7.0.1'
 
     // hapi fhir
-    implementation "ca.uhn.hapi.fhir:org.hl7.fhir.r4:$hapiFhirVersion"
     implementation "ca.uhn.hapi.fhir:hapi-fhir-base:$hapiFhirVersion"
     implementation "ca.uhn.hapi.fhir:hapi-fhir-client:$hapiFhirVersion"
     implementation "ca.uhn.hapi.fhir:hapi-fhir-structures-r4:$hapiFhirVersion"
@@ -92,13 +92,13 @@ dependencies {
 
 
     // integration tests
-    intTestImplementation 'org.springframework.kafka:spring-kafka-test:2.7.6'
+    intTestImplementation 'org.springframework.kafka:spring-kafka-test:2.8.5'
     intTestImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
     }
     intTestImplementation "org.testcontainers:kafka:$testContainersVersion"
     intTestImplementation "org.testcontainers:junit-jupiter:$testContainersVersion"
-    intTestImplementation 'org.awaitility:awaitility:4.1.0'
+    intTestImplementation 'org.awaitility:awaitility:4.2.0'
     intTestImplementation 'org.assertj:assertj-core:3.22.0'
 
 
@@ -139,6 +139,4 @@ jar {
 bootJar {
     mainClass.set('de.unimarburg.diz.kafkapseudonymizer.Application')
 }
-
-ext['log4j2.version'] = '2.17.1'
 
