@@ -18,7 +18,7 @@ spring:
     stream:
       bindings:
         process-in-0:
-          destination: test-fhir(?!-psn).*
+          destination: ^(?=.*-fhir-idat)(?!.*error).*
           group: pseudonymizer
           consumer:
             useNativeDecoding: true
