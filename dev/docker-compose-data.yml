@@ -1,0 +1,27 @@
+version: "3.7"
+
+services:
+
+  patient-data-loader:
+    image: confluentinc/cp-kafkacat:7.0.1
+    entrypoint: ["/bin/bash", "-c"]
+    command: >
+      "kafkacat -b kafka:19092 -K: -t test-fhir-patient -P -l /data/test-bundle.ndjson"
+    volumes:
+      - ./test-data/test-bundle.ndjson:/data/test-bundle.ndjson:ro
+
+  lufu-data-loader:
+    image: confluentinc/cp-kafkacat:7.0.1
+    entrypoint: ["/bin/bash", "-c"]
+    command: >
+      "kafkacat -b kafka:19092 -K: -t test-fhir-lufu -P -l /data/test-bundle.ndjson"
+    volumes:
+      - ./test-data/test-bundle.ndjson:/data/test-bundle.ndjson:ro
+
+  lab-data-loader:
+    image: confluentinc/cp-kafkacat:7.0.1
+    entrypoint: ["/bin/bash", "-c"]
+    command: >
+      "kafkacat -b kafka:19092 -K: -t test-fhir-lab -P -l /data/test-bundle.ndjson"
+    volumes:
+      - ./test-data/test-bundle.ndjson:/data/test-bundle.ndjson:ro

@@ -39,9 +39,6 @@ services:
             docker-kafka-server:
               properties:
                 bootstrap.servers: "kafka:19092"
-              connect:
-                - name: "kafka-connect"
-                  url: "http://kafka-connect:8083"
     ports:
       - "8088:8080"
 
@@ -138,9 +135,11 @@ services:
       - gpas
 
   fhir-pseudonymizer:
-    image: ghcr.io/miracum/fhir-pseudonymizer:v2.12.0
+    image: ghcr.io/miracum/fhir-pseudonymizer:v2.16.0
     environment:
+      UseSystemTextJsonFhirSerializer: true
       GPAS__URL: "http://gpas:8080/ttp-fhir/fhir/"
+      Features__ConditionalReferencePseudonymization: true
     volumes:
       - ./anonymization.yaml:/etc/anonymization.yaml:ro
     ports:

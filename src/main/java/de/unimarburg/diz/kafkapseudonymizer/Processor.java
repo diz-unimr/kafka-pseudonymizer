@@ -1,13 +1,14 @@
 package de.unimarburg.diz.kafkapseudonymizer;
 
 
+import de.unimarburg.diz.kafkapseudonymizer.configuration.AppProperties;
+import java.util.Objects;
 import java.util.function.Function;
 import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.r4.model.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.integration.support.MessageBuilder;
 import org.springframework.kafka.support.KafkaHeaders;
@@ -19,62 +20,70 @@ public class Processor {
 
     private static final Logger log = LoggerFactory.getLogger(Processor.class);
     private final PseudonymizerClient pseudonymizerClient;
-    private final String generateTopicMatchExpression;
-    private final String generateTopicReplacement;
-    private final String inputMatch;
-    private final boolean inputIsPattern;
+    private final AppProperties props;
 
     @Autowired
-    public Processor(PseudonymizerClient pseudonymizerClient,
-        @Value("${services.kafka.generate-output-topic.match-expression}") String generateTopicMatchExpression,
-        @Value("${services.kafka.generate-output-topic.replace-with}") String generateTopicReplacement,
-        @Value("${spring.cloud.stream.bindings.process-in-0.destination}") String inputMatch,
-        @Value("${spring.cloud.stream.kafka.bindings.process-in-0.consumer.destinationIsPattern}") Boolean inputIsPattern) {
-        if (StringUtils.isBlank(generateTopicMatchExpression)) {
+    public Processor(PseudonymizerClient pseudonymizerClient, AppProperties props) {
+        if (StringUtils.isBlank(props
+            .kafka()
+            .outputTopic()
+            .matchExpression())) {
             throw new IllegalArgumentException(
                 "Property 'services.kafka.generate-output-topic.match-expression' is empty");
         }
-        if (StringUtils.isBlank(generateTopicReplacement)) {
+        if (StringUtils.isBlank(props
+            .kafka()
+            .outputTopic()
+            .replaceWith())) {
             throw new IllegalArgumentException(
                 "Property 'services.kafka.generate-output-topic.replace-with' is empty");
         }
 
         this.pseudonymizerClient = pseudonymizerClient;
-        this.generateTopicMatchExpression = generateTopicMatchExpression;
-        this.generateTopicReplacement = generateTopicReplacement;
-        this.inputMatch = inputMatch;
-        this.inputIsPattern = inputIsPattern;
+        this.props = props;
 
-        log.info("Using match expression: {} with replacement: {}", generateTopicMatchExpression,
-            generateTopicReplacement);
+        log.info("Using match expression: {} with replacement: {}", props
+            .kafka()
+            .outputTopic()
+            .matchExpression(), props
+            .kafka()
+            .outputTopic()
+            .replaceWith());
     }
 
     @Bean
     public Function<Message<Bundle>, Message<Bundle>> process() {
         return message -> {
+
             // get message header key
             var messageKey = message
                 .getHeaders()
-                .getOrDefault(KafkaHeaders.RECEIVED_MESSAGE_KEY, "")
+                .getOrDefault(KafkaHeaders.RECEIVED_KEY, "")
                 .toString();
+
             // incoming topic
-            var inputTopic = message
-                .getHeaders()
-                .get(KafkaHeaders.RECEIVED_TOPIC)
+            var inputTopic = Objects
+                .requireNonNull(message
+                    .getHeaders()
+                    .get(KafkaHeaders.RECEIVED_TOPIC))
                 .toString();
             log.info("Processing message {} from topic: {}", messageKey, inputTopic);
+
             // determine output topic
             var outputTopic = generateOutputTopic(inputTopic);
 
-            //pseudonymize the bundle
+            // pseudonymize the bundle
             var bundle = message.getPayload();
             var processed = pseudonymizerClient.process(bundle);
 
             // build new message with payload
             var messageBuilder = MessageBuilder
                 .withPayload(processed)
-                .setHeaderIfAbsent(KafkaHeaders.MESSAGE_KEY, messageKey);
-            messageBuilder.setHeader("spring.cloud.stream.sendto.destination", outputTopic);
+                .setHeader(KafkaHeaders.KEY, messageKey)
+                .setHeader(KafkaHeaders.TIMESTAMP, message
+                    .getHeaders()
+                    .get(KafkaHeaders.RECEIVED_TIMESTAMP))
+                .setHeader("spring.cloud.stream.sendto.destination", outputTopic);
 
             return messageBuilder.build();
         };
@@ -82,20 +91,31 @@ public class Processor {
 
 
     public String generateOutputTopic(String inputTopic) {
-        var outputTopic = inputTopic.replaceFirst(generateTopicMatchExpression,
-            generateTopicReplacement);
+        var outputTopic = inputTopic.replaceFirst(props
+            .kafka()
+            .outputTopic()
+            .matchExpression(), props
+            .kafka()
+            .outputTopic()
+            .replaceWith());
 
         if (inputTopic.equals(outputTopic)) {
             throw new IllegalArgumentException(String.format(
                 "Expression given at 'services.kafka.generate-output-topic.match-expression' not matched: %s",
-                generateTopicMatchExpression));
+                props
+                    .kafka()
+                    .outputTopic()
+                    .matchExpression()));
         }
 
         // validate output topic is not matched by the input topic's expression (would cause a loop)
-        if (inputIsPattern && outputTopic.matches(inputMatch)) {
+        if (props.inputIsPattern() && outputTopic.matches(props
+            .kafka()
+            .outputTopic()
+            .matchExpression())) {
             throw new IllegalArgumentException(String.format(
                 "Input topic pattern '%s' matches output topic pattern '%s'. This would cause a loop.",
-                inputMatch, outputTopic));
+                props.inputTopic(), outputTopic));
         }
 
         return outputTopic;

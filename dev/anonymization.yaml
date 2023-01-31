@@ -1,39 +1,27 @@
 fhirVersion: R4
 fhirPathRules:
   - path: Patient.id
-    method: pseudonymize
-    domain: PATIENT
+    method: cryptoHash
   - path: Encounter.id
-    method: pseudonymize
-    domain: ENCOUNTER
+    method: cryptoHash
   - path: nodesByType('Reference').where(reference.startsWith('Encounter/')).reference
-    method: pseudonymize
-    domain: ENCOUNTER
+    method: cryptoHash
   - path: nodesByType('Reference').where(reference.startsWith('Patient/')).reference
-    method: pseudonymize
-    domain: PATIENT
+    method: cryptoHash
   - path: nodesByType('Reference').where(reference.startsWith('DiagnosticReport/')).reference
-    method: pseudonymize
-    domain: ORDER
-    # Bundle.entry.where(resource.ofType(Patient)).fullUrl is unfortunately not supported by the FhirPath implementation
+    method: cryptoHash
   - path: Bundle.entry.where(fullUrl.startsWith('Patient/')).fullUrl
-    method: pseudonymize
-    domain: PATIENT
+    method: cryptoHash
   - path: Bundle.entry.request.where(url.startsWith('Patient/')).url
-    method: pseudonymize
-    domain: PATIENT
+    method: cryptoHash
   - path: Bundle.entry.where(fullUrl.startsWith('Encounter/')).fullUrl
-    method: pseudonymize
-    domain: ENCOUNTER
+    method: cryptoHash
   - path: Bundle.entry.request.where(url.startsWith('Encounter/')).url
-    method: pseudonymize
-    domain: ENCOUNTER
+    method: cryptoHash
   - path: Bundle.entry.where(fullUrl.startsWith('DiagnosticReport/')).fullUrl
-    method: pseudonymize
-    domain: ORDER
+    method: cryptoHash
   - path: Bundle.entry.request.where(url.startsWith('DiagnosticReport/')).url
-    method: pseudonymize
-    domain: ORDER
+    method: cryptoHash
   - path: nodesByType('Reference').display
     method: redact
   - path: nodesByType('HumanName')
@@ -52,7 +40,7 @@ fhirPathRules:
 parameters:
   dateShiftKey: ""
   dateShiftScope: resource
-  cryptoHashKey: miracum
+  cryptoHashKey: dizunimarburg
   encryptKey: ""
   enablePartialAgesForRedact: true
   enablePartialDatesForRedact: true

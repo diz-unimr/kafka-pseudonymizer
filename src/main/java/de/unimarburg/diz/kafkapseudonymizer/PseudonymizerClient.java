@@ -5,9 +5,14 @@ import static net.logstash.logback.argument.StructuredArguments.kv;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import ca.uhn.fhir.rest.client.exceptions.FhirClientConnectionException;
+import de.unimarburg.diz.kafkapseudonymizer.configuration.PseudonymizerProperties;
 import java.util.HashMap;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.Parameters;
+import org.hl7.fhir.r4.model.codesystems.V3ObservationValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.retry.RetryCallback;
@@ -24,24 +29,28 @@ import org.springframework.web.client.ResourceAccessException;
 public class PseudonymizerClient {
 
     private static final Logger log = LoggerFactory.getLogger(PseudonymizerClient.class);
-    private final String pseudonymizerUrl;
+    private final PseudonymizerProperties properties;
     private final RetryTemplate retryTemplate;
     private final IGenericClient client;
 
-    public PseudonymizerClient(FhirContext fhirContext, String pseudonymizerUrl,
+    private final Predicate<Coding> isPseuded = s -> s
+        .getCode()
+        .equals(V3ObservationValue.PSEUDED.toCode());
+
+    public PseudonymizerClient(FhirContext fhirContext, PseudonymizerProperties properties,
         RetryTemplate retryTemplate) {
-        this.client = fhirContext.newRestfulGenericClient(pseudonymizerUrl);
-        this.pseudonymizerUrl = pseudonymizerUrl;
+        this.properties = properties;
+        this.client = fhirContext.newRestfulGenericClient(properties.url());
         this.retryTemplate = retryTemplate;
     }
 
-    public PseudonymizerClient(FhirContext fhirContext, String pseudonymizerUrl) {
-        this(fhirContext, pseudonymizerUrl, defaultTemplate());
+    public PseudonymizerClient(FhirContext fhirContext, PseudonymizerProperties properties) {
+        this(fhirContext, properties, defaultTemplate());
     }
 
     public Bundle process(Bundle bundle) {
         log.debug("Invoking pseudonymization service @ {}",
-            kv("pseudonymizerUrl", pseudonymizerUrl));
+            kv("pseudonymizerUrl", properties.url()));
 
         Parameters param = new Parameters();
         param
@@ -49,13 +58,45 @@ public class PseudonymizerClient {
             .setName("resource")
             .setResource(bundle);
 
-        return retryTemplate.execute(ctx -> client
+        var result = retryTemplate.execute(ctx -> client
             .operation()
             .onServer()
             .named("de-identify")
             .withParameters(param)
             .returnResourceType(Bundle.class)
             .execute());
+
+        return replaceSecurityTag(result);
+    }
+
+    private Bundle replaceSecurityTag(Bundle bundle) {
+        if (properties.replaceSecurityTag()) {
+            var pseudedCodings = Stream
+                .concat(bundle
+                        .getMeta()
+                        .getSecurity()
+                        .stream()
+                        .filter(isPseuded),
+
+                    bundle
+                        .getEntry()
+                        .stream()
+                        .flatMap(x -> x
+                            .getResource()
+                            .getMeta()
+                            .getSecurity()
+                            .stream())
+                        .filter(isPseuded))
+                .toList();
+
+            pseudedCodings.forEach(c -> {
+                c.setSystem(V3ObservationValue.ANONYED.getSystem());
+                c.setCode(V3ObservationValue.ANONYED.toCode());
+                c.setDisplay(V3ObservationValue.ANONYED.getDisplay());
+            });
+        }
+
+        return bundle;
     }
 
     public static RetryTemplate defaultTemplate() {
