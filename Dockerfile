@@ -1,11 +1,11 @@
-FROM gradle:7.3-jdk17 AS build
+FROM gradle:7.4-jdk17 AS build
 WORKDIR /home/gradle/src
 ENV GRADLE_USER_HOME /gradle
 
 COPY build.gradle settings.gradle ./
 
 COPY --chown=gradle:gradle . .
-RUN gradle build -x integrationTest --info && \
+RUN gradle build --info && \
     gradle jacocoTestReport && \
     awk -F"," '{ instructions += $4 + $5; covered += $5 } END { print covered, "/", instructions, " instructions covered"; print 100*covered/instructions, "% covered" }' build/jacoco/coverage.csv && \
     java -Djarmode=layertools -jar build/libs/*.jar extract

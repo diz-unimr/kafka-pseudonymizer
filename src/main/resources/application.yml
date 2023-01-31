@@ -2,7 +2,7 @@ spring:
   jmx:
     enabled: true
   kafka:
-    bootstrapServers: ${BOOTSTRAP_SERVERS:localhost:9092}
+    bootstrap-servers: ${BOOTSTRAP_SERVERS:localhost:9092}
     security.protocol: ${SECURITY_PROTOCOL:PLAINTEXT}
     ssl:
       trust-store-location: file://${SSL_TRUST_STORE_LOCATION_INTERNAL:/opt/kafka-pseudonymizer/ssl/truststore.jks}
@@ -18,7 +18,7 @@ spring:
     stream:
       bindings:
         process-in-0:
-          destination: ^(?=.*-fhir-idat)(?!.*error).*
+          destination: ^(?=store-.*-fhir-idat)(?!.*error).*
           group: pseudonymizer
           consumer:
             useNativeDecoding: true
@@ -29,29 +29,27 @@ spring:
         bindings:
           process-in-0:
             consumer:
-              destinationIsPattern: true
+              destination-is-pattern: ${INPUT_IS_PATTERN:true}
               configuration:
                 key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
                 value.deserializer: org.miracum.kafka.serializers.KafkaFhirDeserializer
-          process-out-0:
-            producer:
-              configuration:
-                compression.type: ${COMPRESSION_TYPE:gzip}
 
+        binder:
+          minPartitionCount: 3
 
 services:
   pseudonymizer:
     url: "http://localhost:5000/fhir"
+    replace-security-tag: true
 
   kafka:
-    generate-output-topic:
-      match-expression: "-fhir"
-      replace-with: "-fhir-psn"
+    output-topic:
+      match-expression: "-fhir-idat"
+      replace-with: "-fhir-idat-psn"
 
-
-server:
-  port: 8080
 management:
+  server:
+    port: 8080
   endpoints:
     web:
       exposure:

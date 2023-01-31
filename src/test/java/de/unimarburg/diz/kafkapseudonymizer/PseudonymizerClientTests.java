@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
+import de.unimarburg.diz.kafkapseudonymizer.configuration.PseudonymizerProperties;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Parameters;
 import org.junit.jupiter.api.Test;
@@ -43,7 +44,8 @@ public class PseudonymizerClientTests {
             .execute()).thenReturn(expected);
 
         // act
-        var actual = new PseudonymizerClient(fhirContext, dummyUrl).process(inputBundle);
+        var actual = new PseudonymizerClient(fhirContext,
+            new PseudonymizerProperties(dummyUrl, false)).process(inputBundle);
 
         // assert
         assertThat(actual).isEqualTo(expected);
