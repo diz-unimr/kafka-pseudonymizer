@@ -66,10 +66,10 @@ public class PseudonymizerClient {
             .returnResourceType(Bundle.class)
             .execute());
 
-        return replaceSecurityTag(result);
+        return replaceSecurityTags(result);
     }
 
-    private Bundle replaceSecurityTag(Bundle bundle) {
+    Bundle replaceSecurityTags(Bundle bundle) {
         if (properties.replaceSecurityTag()) {
             var pseudedCodings = Stream
                 .concat(bundle
