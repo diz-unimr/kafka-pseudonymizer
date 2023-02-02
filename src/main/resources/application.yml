@@ -18,10 +18,11 @@ spring:
     stream:
       bindings:
         process-in-0:
-          destination: ^(?=store-.*-fhir-idat)(?!.*error).*
+          destination: ${INPUT_TOPICS:^(?=.*-fhir)(?!.*fhir-psn).*}
           group: pseudonymizer
           consumer:
             useNativeDecoding: true
+            concurrency: ${CONSUMER_THREADS:-4}
         process-out-0:
           producer:
             useNativeEncoding: true
