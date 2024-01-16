@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 package de.unimarburg.diz.kafkapseudonymizer;
 
 import static org.assertj.core.api.Fail.fail;

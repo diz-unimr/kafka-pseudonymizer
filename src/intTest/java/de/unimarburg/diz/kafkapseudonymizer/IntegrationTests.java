@@ -31,7 +31,8 @@ import org.springframework.test.context.TestPropertySource;
     "services.kafka.generate-output-topic.match-expression=fhir",
     "services.kafka.generate-output-topic.replace-with=fhir-psn",
     "spring.cloud.stream.bindings.process-in-0.destination=test-fhir(?!-psn).*",
-    "spring.cloud.stream.kafka.bindings.process-in-0.consumer.destinationIsPattern=true"})
+    "spring.cloud.stream.kafka.bindings.process-in-0.consumer."
+        + "destinationIsPattern=true"})
 class IntegrationTests extends TestContainerBase {
 
 
@@ -75,7 +76,7 @@ class IntegrationTests extends TestContainerBase {
     }
 
     @Test
-    public void process_ProducesPseudonymizedMessage() {
+    public void processProducesPseudonymizedMessage() {
         // create consumer to read from the output topic
         var outputTopic = "test-fhir-psn";
         var consumer = createConsumer();
