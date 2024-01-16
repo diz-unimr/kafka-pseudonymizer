@@ -1,4 +1,6 @@
-# kafka-pseudonymizer
+<img src="assets/kafka-pseudonymizer_96.png" alt="Kafka Pseudonymizer icon" width="96" height="96" style="float:left;margin:20px" />
+
+# Kafka Pseudonymizer
 [![codecov](https://codecov.io/gh/diz-unimr/kafka-pseudonymizer/graph/badge.svg?token=uaRbgoqlta)](https://codecov.io/gh/diz-unimr/kafka-pseudonymizer)
 
 Kafka pseudonymization/anonymization processor featuring a convention based approach when handling input and output topics.
