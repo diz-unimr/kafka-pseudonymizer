@@ -29,11 +29,12 @@ public class ProcessorTests {
 
     @ParameterizedTest
     @MethodSource("provideStringForInputAndOutputTopics")
-    public void generateOutputTopic_UsesMatchExpression(String input, String expected) {
+    public void generateOutputTopicUsesMatchExpression(String input,
+        String expected) {
 
         // arrange
-        var props = new AppProperties(null, false, null,
-            new KafkaProperties(new OutputTopicProperties("fhir-", "psn-fhir-")));
+        var props = new AppProperties(null, false, null, new KafkaProperties(
+            new OutputTopicProperties("fhir-", "psn-fhir-")));
 
         var processor = new Processor(null, props);
         // act
@@ -43,12 +44,13 @@ public class ProcessorTests {
     }
 
     @ParameterizedTest
-    @CsvSource(value = {"fhir-patient:psn-fhir-patient", "fhir-lab:psn-fhir-lab"}, delimiter = ':')
-    public void process_SetsMessageHeaders(String input, String expected) {
+    @CsvSource(value = {"fhir-patient:psn-fhir-patient",
+        "fhir-lab:psn-fhir-lab"}, delimiter = ':')
+    public void processSetsMessageHeaders(String input, String expected) {
 
         // arrange
-        var props = new AppProperties(null, false, null,
-            new KafkaProperties(new OutputTopicProperties("fhir-", "psn-fhir-")));
+        var props = new AppProperties(null, false, null, new KafkaProperties(
+            new OutputTopicProperties("fhir-", "psn-fhir-")));
 
         var clientMock = Mockito.mock(PseudonymizerClient.class);
         Mockito
@@ -56,14 +58,14 @@ public class ProcessorTests {
             .thenReturn(new Bundle());
 
         var processor = new Processor(clientMock, props);
-        var message_with_header = MessageBuilder
+        var messageWithHeader = MessageBuilder
             .withPayload(new Bundle())
             .setHeaderIfAbsent(KafkaHeaders.RECEIVED_TOPIC, input);
 
         //act
         var result = processor
             .process()
-            .apply(message_with_header.build());
+            .apply(messageWithHeader.build());
         var inputTopic = result
             .getHeaders()
             .get("spring.cloud.stream.sendto.destination")
@@ -75,10 +77,10 @@ public class ProcessorTests {
 
 
     @Test
-    public void computeOutputTopicFromInputTopic_MatchExpressionException() {
+    public void computeOutputTopicFromInputTopicMatchExpressionException() {
         // arrange
-        var props = new AppProperties(null, false, null,
-            new KafkaProperties(new OutputTopicProperties("fhir\\-", "psn-fhir-")));
+        var props = new AppProperties(null, false, null, new KafkaProperties(
+            new OutputTopicProperties("fhir\\-", "psn-fhir-")));
 
         // act
         assertThrows(IllegalArgumentException.class, () -> {
@@ -89,7 +91,7 @@ public class ProcessorTests {
     }
 
     @Test
-    public void generateOutputTopic_Empty_MatchExpressionException() {
+    public void generateOutputTopicFailsOnEmptyMatchExpression() {
 
         // arrange
         var props = new AppProperties(null, false, null,
@@ -102,12 +104,11 @@ public class ProcessorTests {
                 var processor = new Processor(null, props);
                 processor.generateOutputTopic(inputTopic);
             })
-            .withMessage(
-                "Property 'services.kafka.generate-output-topic.match-expression' is empty");
+            .withMessage("Output topic match expression is empty");
     }
 
     @Test
-    public void generateOutputTopic_Empty_ReplacementExpressionException() {
+    public void generateOutputTopicFailsOnEmptyReplacementExpression() {
         // arrange
         var props = new AppProperties(null, false, null,
             new KafkaProperties(new OutputTopicProperties("fhir-", "")));
@@ -119,7 +120,7 @@ public class ProcessorTests {
                 var processor = new Processor(null, props);
                 processor.generateOutputTopic(inputTopic);
             })
-            .withMessage("Property 'services.kafka.generate-output-topic.replace-with' is empty");
+            .withMessage("Output topic name replacement is empty");
     }
 
 

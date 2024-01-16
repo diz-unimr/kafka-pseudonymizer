@@ -26,21 +26,25 @@ public abstract class TestContainerBase {
     @Container
     protected static KafkaContainer kafka = createKafkaContainer(network);
     @Container
-    protected static GenericContainer fhirPseudonymizer = createPseudonymizerContainer(network);
+    protected static GenericContainer fhirPseudonymizer = createPseudonymizerContainer(
+        network);
     @Container
-    protected static GenericContainer gPasContainer = createGpasContainer(network);
+    protected static GenericContainer gPasContainer = createGpasContainer(
+        network);
 
     protected static void setup() {
         initGpas(String.format("http://%s:%d", gPasContainer.getHost(),
             gPasContainer.getFirstMappedPort()));
     }
 
-    private static GenericContainer createPseudonymizerContainer(Network network) {
+    private static GenericContainer createPseudonymizerContainer(
+        Network network) {
         return new GenericContainer<>(
             DockerImageName.parse("ghcr.io/miracum/fhir-pseudonymizer:v2.12.0"))
-            .withEnv(Collections.singletonMap("GPAS__URL", "http://gpas:8080/ttp-fhir/fhir/"))
-            .withClasspathResourceMapping("anonymization.yaml", "/etc/anonymization.yaml",
-                BindMode.READ_ONLY)
+            .withEnv(Collections.singletonMap("GPAS__URL",
+                "http://gpas:8080/ttp-fhir/fhir/"))
+            .withClasspathResourceMapping("anonymization.yaml",
+                "/etc/anonymization.yaml", BindMode.READ_ONLY)
             .withNetwork(network)
             .waitingFor(Wait.forHttp("/fhir/metadata"))
             .withExposedPorts(8080);
@@ -48,8 +52,8 @@ public abstract class TestContainerBase {
 
 
     private static GenericContainer createGpasContainer(Network network) {
-        return new GenericContainer<>(
-            DockerImageName.parse("harbor.miracum.org/gpas/gpas:1.10.0-20201221"))
+        return new GenericContainer<>(DockerImageName.parse(
+            "harbor.miracum.org/gpas/gpas:1.10.0-20201221"))
             .withNetworkAliases("gpas")
             .withNetwork(network)
             .withExposedPorts(8080)
@@ -87,8 +91,10 @@ public abstract class TestContainerBase {
     }
 
     public static KafkaContainer createKafkaContainer(Network network) {
-        return new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:5.5.0")).withNetwork(
+        return new KafkaContainer(
+            DockerImageName.parse("confluentinc/cp-kafka:5.5.0")).withNetwork(
             network);
+
     }
 
 }

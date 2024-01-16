@@ -6,6 +6,7 @@ import org.springframework.validation.annotation.Validated;
 @ConfigurationProperties(prefix = "services")
 @Validated
 public record AppProperties(String inputTopic, boolean inputIsPattern,
-                            PseudonymizerProperties pseudonymizer, KafkaProperties kafka) {
+                            PseudonymizerProperties pseudonymizer,
+                            KafkaProperties kafka) {
 
 }

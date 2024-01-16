@@ -18,31 +18,32 @@ import org.springframework.stereotype.Service;
 @Service
 public class Processor {
 
-    private static final Logger log = LoggerFactory.getLogger(Processor.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Processor.class);
     private final PseudonymizerClient pseudonymizerClient;
     private final AppProperties props;
 
     @Autowired
-    public Processor(PseudonymizerClient pseudonymizerClient, AppProperties props) {
+    public Processor(PseudonymizerClient pseudonymizerClient,
+        AppProperties props) {
         if (StringUtils.isBlank(props
             .kafka()
             .outputTopic()
             .matchExpression())) {
             throw new IllegalArgumentException(
-                "Property 'services.kafka.generate-output-topic.match-expression' is empty");
+                "Output topic match expression is empty");
         }
         if (StringUtils.isBlank(props
             .kafka()
             .outputTopic()
             .replaceWith())) {
             throw new IllegalArgumentException(
-                "Property 'services.kafka.generate-output-topic.replace-with' is empty");
+                "Output topic name replacement is empty");
         }
 
         this.pseudonymizerClient = pseudonymizerClient;
         this.props = props;
 
-        log.info("Using match expression: {} with replacement: {}", props
+        LOG.info("Using match expression: {} with replacement: {}", props
             .kafka()
             .outputTopic()
             .matchExpression(), props
@@ -67,7 +68,8 @@ public class Processor {
                     .getHeaders()
                     .get(KafkaHeaders.RECEIVED_TOPIC))
                 .toString();
-            log.info("Processing message {} from topic: {}", messageKey, inputTopic);
+            LOG.info("Processing message {} from topic: {}", messageKey,
+                inputTopic);
 
             // determine output topic
             var outputTopic = generateOutputTopic(inputTopic);
@@ -83,7 +85,8 @@ public class Processor {
                 .setHeader(KafkaHeaders.TIMESTAMP, message
                     .getHeaders()
                     .get(KafkaHeaders.RECEIVED_TIMESTAMP))
-                .setHeader("spring.cloud.stream.sendto.destination", outputTopic);
+                .setHeader("spring.cloud.stream.sendto.destination",
+                    outputTopic);
 
             return messageBuilder.build();
         };
@@ -100,22 +103,23 @@ public class Processor {
             .replaceWith());
 
         if (inputTopic.equals(outputTopic)) {
-            throw new IllegalArgumentException(String.format(
-                "Expression given at 'services.kafka.generate-output-topic.match-expression' not matched: %s",
-                props
+            throw new IllegalArgumentException(
+                String.format("Match expression' not matched: %s", props
                     .kafka()
                     .outputTopic()
                     .matchExpression()));
         }
 
-        // validate output topic is not matched by the input topic's expression (would cause a loop)
+        // validate output topic is not matched by
+        // the input topic's expression (would cause a loop)
         if (props.inputIsPattern() && outputTopic.matches(props
             .kafka()
             .outputTopic()
             .matchExpression())) {
             throw new IllegalArgumentException(String.format(
-                "Input topic pattern '%s' matches output topic pattern '%s'. This would cause a loop.",
-                props.inputTopic(), outputTopic));
+                "Input topic pattern '%s' matches output topic pattern '%s'."
+                    + " This would cause a loop.", props.inputTopic(),
+                outputTopic));
         }
 
         return outputTopic;

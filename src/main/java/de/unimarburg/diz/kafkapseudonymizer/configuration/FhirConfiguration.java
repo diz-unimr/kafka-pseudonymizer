@@ -19,7 +19,9 @@ public class FhirConfiguration {
 
     @Bean
     @Autowired
-    public PseudonymizerClient pseudonymizer(FhirContext fhirContext, AppProperties properties) {
+    public PseudonymizerClient pseudonymizer(FhirContext fhirContext,
+        AppProperties properties) {
+
         return new PseudonymizerClient(fhirContext, properties.pseudonymizer());
     }
 

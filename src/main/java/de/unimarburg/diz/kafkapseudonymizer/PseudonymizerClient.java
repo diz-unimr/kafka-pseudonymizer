@@ -17,7 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.retry.RetryCallback;
 import org.springframework.retry.RetryContext;
-import org.springframework.retry.RetryPolicy;
 import org.springframework.retry.backoff.ExponentialBackOffPolicy;
 import org.springframework.retry.listener.RetryListenerSupport;
 import org.springframework.retry.policy.SimpleRetryPolicy;
@@ -28,7 +27,11 @@ import org.springframework.web.client.ResourceAccessException;
 
 public class PseudonymizerClient {
 
-    private static final Logger log = LoggerFactory.getLogger(PseudonymizerClient.class);
+    private static final Logger LOG = LoggerFactory.getLogger(
+        PseudonymizerClient.class);
+    private static final long BACKOFF_INITIAL_INTERVAL = 5000;
+    private static final double BACKOFF_MULTIPLIER = 1.25;
+    private static final int RETRY_MAX_ATTEMPTS = 3;
     private final PseudonymizerProperties properties;
     private final RetryTemplate retryTemplate;
     private final IGenericClient client;
@@ -37,19 +40,20 @@ public class PseudonymizerClient {
         .getCode()
         .equals(V3ObservationValue.PSEUDED.toCode());
 
-    public PseudonymizerClient(FhirContext fhirContext, PseudonymizerProperties properties,
-        RetryTemplate retryTemplate) {
+    public PseudonymizerClient(FhirContext fhirContext,
+        PseudonymizerProperties properties, RetryTemplate retryTemplate) {
         this.properties = properties;
         this.client = fhirContext.newRestfulGenericClient(properties.url());
         this.retryTemplate = retryTemplate;
     }
 
-    public PseudonymizerClient(FhirContext fhirContext, PseudonymizerProperties properties) {
+    public PseudonymizerClient(FhirContext fhirContext,
+        PseudonymizerProperties properties) {
         this(fhirContext, properties, defaultTemplate());
     }
 
     public Bundle process(Bundle bundle) {
-        log.debug("Invoking pseudonymization service @ {}",
+        LOG.debug("Invoking pseudonymization service @ {}",
             kv("pseudonymizerUrl", properties.url()));
 
         Parameters param = new Parameters();
@@ -103,17 +107,17 @@ public class PseudonymizerClient {
         RetryTemplate retryTemplate = new RetryTemplate();
 
         ExponentialBackOffPolicy backOffPolicy = new ExponentialBackOffPolicy();
-        backOffPolicy.setInitialInterval(5000);
-        backOffPolicy.setMultiplier(1.25);
+        backOffPolicy.setInitialInterval(BACKOFF_INITIAL_INTERVAL);
+        backOffPolicy.setMultiplier(BACKOFF_MULTIPLIER);
         retryTemplate.setBackOffPolicy(backOffPolicy);
 
-        HashMap<Class<? extends Throwable>, Boolean> retryableExceptions = new HashMap<>();
-        retryableExceptions.put(HttpClientErrorException.class, false);
-        retryableExceptions.put(HttpServerErrorException.class, true);
-        retryableExceptions.put(ResourceAccessException.class, true);
-        retryableExceptions.put(FhirClientConnectionException.class, true);
+        var retryable = new HashMap<Class<? extends Throwable>, Boolean>();
+        retryable.put(HttpClientErrorException.class, false);
+        retryable.put(HttpServerErrorException.class, true);
+        retryable.put(ResourceAccessException.class, true);
+        retryable.put(FhirClientConnectionException.class, true);
 
-        RetryPolicy retryPolicy = new SimpleRetryPolicy(3, retryableExceptions);
+        var retryPolicy = new SimpleRetryPolicy(RETRY_MAX_ATTEMPTS, retryable);
 
         retryTemplate.setRetryPolicy(retryPolicy);
 
@@ -121,7 +125,8 @@ public class PseudonymizerClient {
             @Override
             public <T, E extends Throwable> void onError(RetryContext context,
                 RetryCallback<T, E> callback, Throwable throwable) {
-                log.warn("HTTP Error occurred: {}. Retrying {}", throwable.getMessage(),
+                LOG.warn("HTTP Error occurred: {}. Retrying {}",
+                    throwable.getMessage(),
                     kv("attempt", context.getRetryCount()));
             }
         });

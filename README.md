@@ -5,7 +5,7 @@ Kafka pseudonymization/anonymization processor featuring a convention based appr
 
 The current implementation supports pseudonymization/anonymization of Kafka messages in FHIR 🔥 format only.
 
-# Deployment
+## Deployment
 
 Example via `docker compose`:
 ```yml
