@@ -1,4 +1,5 @@
 spring:
+  main.allow-bean-definition-overriding: true
   jmx:
     enabled: true
   kafka:
@@ -46,7 +47,7 @@ services:
   kafka:
     output-topic:
       match-expression: "-fhir-idat"
-      replace-with: "-fhir-idat-psn"
+      replace-with: "-fhir-psn"
 
 management:
   server:
