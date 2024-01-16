@@ -23,7 +23,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 public class PseudonymizerClientTests {
 
     @Test
-    void process_CallsPseudonymizationEndpoint() {
+    void processCallsPseudonymizationEndpoint() {
         // arrange
         var dummyUrl = "dummyUrl";
         var inputBundle = new Bundle();
@@ -32,7 +32,8 @@ public class PseudonymizerClientTests {
         // mocks & stubs
         var fhirContext = mock(FhirContext.class);
         var fhirClient = mock(IGenericClient.class, RETURNS_DEEP_STUBS);
-        when(fhirContext.newRestfulGenericClient(dummyUrl)).thenReturn(fhirClient);
+        when(fhirContext.newRestfulGenericClient(dummyUrl)).thenReturn(
+            fhirClient);
         when(fhirClient
             .operation()
             .onServer()
@@ -58,13 +59,15 @@ public class PseudonymizerClientTests {
 
     @ParameterizedTest()
     @ValueSource(booleans = {true, false})
-    void replaceSecurityTags_UsesAnonyedCoding(boolean replaceSecurityTags) {
+    void replaceSecurityTagsUsesAnonyedCoding(boolean replaceSecurityTags) {
         // arrange
         var dummyUrl = "dummyUrl";
         var pseuded = new Coding(V3ObservationValue.PSEUDED.getSystem(),
-            V3ObservationValue.PSEUDED.toCode(), V3ObservationValue.PSEUDED.getDisplay());
+            V3ObservationValue.PSEUDED.toCode(),
+            V3ObservationValue.PSEUDED.getDisplay());
         var anonyed = new Coding(V3ObservationValue.ANONYED.getSystem(),
-            V3ObservationValue.ANONYED.toCode(), V3ObservationValue.ANONYED.getDisplay());
+            V3ObservationValue.ANONYED.toCode(),
+            V3ObservationValue.ANONYED.getDisplay());
 
         var pseudedBundle = new Bundle();
         pseudedBundle
@@ -81,7 +84,8 @@ public class PseudonymizerClientTests {
         // mocks & stubs
         var fhirContext = mock(FhirContext.class);
         var fhirClient = mock(IGenericClient.class, RETURNS_DEEP_STUBS);
-        when(fhirContext.newRestfulGenericClient(dummyUrl)).thenReturn(fhirClient);
+        when(fhirContext.newRestfulGenericClient(dummyUrl)).thenReturn(
+            fhirClient);
         when(fhirClient
             .operation()
             .onServer()
@@ -92,7 +96,8 @@ public class PseudonymizerClientTests {
 
         // act
         var actual = new PseudonymizerClient(fhirContext,
-            new PseudonymizerProperties(dummyUrl, replaceSecurityTags)).process(new Bundle());
+            new PseudonymizerProperties(dummyUrl, replaceSecurityTags)).process(
+            new Bundle());
 
         // assert
         assertThat(actual
