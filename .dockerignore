@@ -4,5 +4,4 @@ build/
 gradle/
 .idea/
 dev/
-deploy/
 **/application-dev.yml
