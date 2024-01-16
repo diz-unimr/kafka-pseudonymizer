@@ -29,11 +29,8 @@ public class PseudonymizerClientTests {
         var inputBundle = new Bundle();
         var expected = new Bundle();
 
-        // mocks & stubs
         var fhirContext = mock(FhirContext.class);
-        var fhirClient = mock(IGenericClient.class, RETURNS_DEEP_STUBS);
-        when(fhirContext.newRestfulGenericClient(dummyUrl)).thenReturn(
-            fhirClient);
+        var fhirClient = setupClientMock(fhirContext, dummyUrl);
         when(fhirClient
             .operation()
             .onServer()
@@ -55,6 +52,12 @@ public class PseudonymizerClientTests {
 
         // assert
         assertThat(actual).isEqualTo(expected);
+    }
+
+    private IGenericClient setupClientMock(FhirContext ctx, String url) {
+        var fhirClient = mock(IGenericClient.class, RETURNS_DEEP_STUBS);
+        when(ctx.newRestfulGenericClient(url)).thenReturn(fhirClient);
+        return fhirClient;
     }
 
     @ParameterizedTest()
@@ -83,9 +86,7 @@ public class PseudonymizerClientTests {
 
         // mocks & stubs
         var fhirContext = mock(FhirContext.class);
-        var fhirClient = mock(IGenericClient.class, RETURNS_DEEP_STUBS);
-        when(fhirContext.newRestfulGenericClient(dummyUrl)).thenReturn(
-            fhirClient);
+        var fhirClient = setupClientMock(fhirContext, dummyUrl);
         when(fhirClient
             .operation()
             .onServer()
