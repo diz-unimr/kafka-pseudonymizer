@@ -1,7 +1,7 @@
 <img align="left" src="assets/kafka-pseudonymizer_96.png" alt="Kafka Pseudonymizer icon" width="96" height="96" >
 
 # Kafka Pseudonymizer
-[![codecov](https://codecov.io/gh/diz-unimr/kafka-pseudonymizer/graph/badge.svg?token=uaRbgoqlta)](https://codecov.io/gh/diz-unimr/kafka-pseudonymizer)
+[![MegaLinter](https://github.com/diz-unimr/kafka-pseudonymizer/actions/workflows/mega-linter.yml/badge.svg?branch=main)](https://github.com/diz-unimr/kafka-pseudonymizer/actions/workflows/mega-linter.yml?query=branch%3Amain) ![java](https://github.com/diz-unimr/kafka-pseudonymizer/actions/workflows/build.yml/badge.svg) ![docker](https://github.com/diz-unimr/kafka-pseudonymizer/actions/workflows/release.yml/badge.svg) [![codecov](https://codecov.io/gh/diz-unimr/kafka-pseudonymizer/graph/badge.svg?token=uaRbgoqlta)](https://codecov.io/gh/diz-unimr/kafka-pseudonymizer)
 
 Kafka pseudonymization/anonymization processor featuring a convention based approach when handling input and output topics.
 
