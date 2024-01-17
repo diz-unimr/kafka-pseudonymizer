@@ -6,8 +6,6 @@ COPY build.gradle settings.gradle ./
 
 COPY --chown=gradle:gradle . .
 RUN gradle build --info && \
-    gradle jacocoTestReport && \
-    awk -F"," '{ instructions += $4 + $5; covered += $5 } END { print covered, "/", instructions, " instructions covered"; print 100*covered/instructions, "% covered" }' build/jacoco/coverage.csv && \
     java -Djarmode=layertools -jar build/libs/*.jar extract
 
 FROM gcr.io/distroless/java17:nonroot
