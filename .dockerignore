@@ -1,7 +1,5 @@
-.gradle/
 bin/
 build/
-gradle/
 .idea/
 dev/
 assets/

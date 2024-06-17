@@ -1,11 +1,9 @@
-FROM gradle:7.4-jdk17 AS build
+FROM eclipse-temurin:17-jdk-jammy AS build
 WORKDIR /home/gradle/src
 ENV GRADLE_USER_HOME /gradle
 
-COPY build.gradle settings.gradle ./
-
-COPY --chown=gradle:gradle . .
-RUN gradle build --info && \
+COPY . .
+RUN ./gradlew build --info && \
     java -Djarmode=layertools -jar build/libs/*.jar extract
 
 FROM gcr.io/distroless/java17:nonroot
@@ -22,7 +20,7 @@ ARG BUILD_TIME=""
 ARG VERSION=0.0.0
 ENV APP_VERSION=${VERSION} \
     SPRING_PROFILES_ACTIVE="prod"
-ENTRYPOINT ["java", "-XX:MaxRAMPercentage=90", "org.springframework.boot.loader.JarLauncher"]
+ENTRYPOINT ["java", "-XX:MaxRAMPercentage=90", "org.springframework.boot.loader.launch.JarLauncher"]
 
 HEALTHCHECK --interval=25s --timeout=3s --retries=2 CMD ["java", "HealthCheck.java", "||", "exit", "1"]
 
