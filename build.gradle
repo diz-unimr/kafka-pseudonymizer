@@ -1,5 +1,5 @@
 plugins {
-    id 'org.springframework.boot' version '3.0.0'
+    id 'org.springframework.boot' version '3.2.3'
     id 'io.spring.dependency-management' version '1.1.4'
     id 'java'
     id 'jacoco'
@@ -18,8 +18,9 @@ repositories {
 }
 
 ext {
-    set('springBootVersion', "3.0.0")
-    set("hapiFhirVersion", "5.7.2")
+    set('springBootVersion', "3.2.3")
+    set("hapiFhirVersion", "6.10.5")
+    set('springCloudDepsVersion', "2023.0.0")
 }
 
 dependencies {
@@ -51,21 +52,23 @@ dependencies {
 
 dependencyManagement {
     imports {
-        mavenBom 'org.springframework.cloud:spring-cloud-dependencies:2022.0.0'
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:$springCloudDepsVersion"
     }
 }
 
 test {
     useJUnitPlatform()
-    finalizedBy jacocoTestReport
 }
 
 jacocoTestReport {
     reports {
-        xml.enabled true
+        xml.required = true
+        html.required = false
     }
-    dependsOn test
 }
+
+check.dependsOn jacocoTestReport
+
 
 jar {
     enabled = false
@@ -74,4 +77,3 @@ jar {
 bootJar {
     mainClass.set('de.unimarburg.diz.kafkapseudonymizer.Application')
 }
-
