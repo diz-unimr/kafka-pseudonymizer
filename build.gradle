@@ -40,7 +40,7 @@ dependencies {
     implementation "ca.uhn.hapi.fhir:hapi-fhir-structures-r4:$hapiFhirVersion"
     implementation "ca.uhn.hapi.fhir:hapi-fhir-validation:$hapiFhirVersion"
     implementation "ca.uhn.hapi.fhir:hapi-fhir-validation-resources-r4:$hapiFhirVersion"
-    implementation 'org.miracum:kafka-fhir-serializer:1.0.2'
+    implementation 'org.miracum:kafka-fhir-serializer:1.0.6'
 
     // unit tests
     testImplementation 'org.junit.jupiter:junit-jupiter'
