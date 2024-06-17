@@ -17,8 +17,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.retry.RetryCallback;
 import org.springframework.retry.RetryContext;
+import org.springframework.retry.RetryListener;
 import org.springframework.retry.backoff.ExponentialBackOffPolicy;
-import org.springframework.retry.listener.RetryListenerSupport;
 import org.springframework.retry.policy.SimpleRetryPolicy;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.web.client.HttpClientErrorException;
@@ -27,8 +27,8 @@ import org.springframework.web.client.ResourceAccessException;
 
 public class PseudonymizerClient {
 
-    private static final Logger LOG = LoggerFactory.getLogger(
-        PseudonymizerClient.class);
+    private static final Logger LOG =
+        LoggerFactory.getLogger(PseudonymizerClient.class);
     private static final long BACKOFF_INITIAL_INTERVAL = 5000;
     private static final double BACKOFF_MULTIPLIER = 1.25;
     private static final int RETRY_MAX_ATTEMPTS = 3;
@@ -36,9 +36,8 @@ public class PseudonymizerClient {
     private final RetryTemplate retryTemplate;
     private final IGenericClient client;
 
-    private final Predicate<Coding> isPseuded = s -> s
-        .getCode()
-        .equals(V3ObservationValue.PSEUDED.toCode());
+    private final Predicate<Coding> isPseuded =
+        s -> s.getCode().equals(V3ObservationValue.PSEUDED.toCode());
 
     public PseudonymizerClient(FhirContext fhirContext,
         PseudonymizerProperties properties, RetryTemplate retryTemplate) {
@@ -57,41 +56,24 @@ public class PseudonymizerClient {
             kv("pseudonymizerUrl", properties.url()));
 
         Parameters param = new Parameters();
-        param
-            .addParameter()
-            .setName("resource")
-            .setResource(bundle);
+        param.addParameter().setName("resource").setResource(bundle);
 
-        var result = retryTemplate.execute(ctx -> client
-            .operation()
-            .onServer()
-            .named("de-identify")
-            .withParameters(param)
-            .returnResourceType(Bundle.class)
-            .execute());
+        var result = retryTemplate.execute(
+            ctx -> client.operation().onServer().named("de-identify")
+                .withParameters(param).returnResourceType(Bundle.class)
+                .execute());
 
         return replaceSecurityTags(result);
     }
 
     Bundle replaceSecurityTags(Bundle bundle) {
         if (properties.replaceSecurityTag()) {
-            var pseudedCodings = Stream
-                .concat(bundle
-                        .getMeta()
-                        .getSecurity()
-                        .stream()
-                        .filter(isPseuded),
+            var pseudedCodings = Stream.concat(
+                bundle.getMeta().getSecurity().stream().filter(isPseuded),
 
-                    bundle
-                        .getEntry()
-                        .stream()
-                        .flatMap(x -> x
-                            .getResource()
-                            .getMeta()
-                            .getSecurity()
-                            .stream())
-                        .filter(isPseuded))
-                .toList();
+                bundle.getEntry().stream().flatMap(
+                        x -> x.getResource().getMeta().getSecurity().stream())
+                    .filter(isPseuded)).toList();
 
             pseudedCodings.forEach(c -> {
                 c.setSystem(V3ObservationValue.ANONYED.getSystem());
@@ -121,7 +103,7 @@ public class PseudonymizerClient {
 
         retryTemplate.setRetryPolicy(retryPolicy);
 
-        retryTemplate.registerListener(new RetryListenerSupport() {
+        retryTemplate.registerListener(new RetryListener() {
             @Override
             public <T, E extends Throwable> void onError(RetryContext context,
                 RetryCallback<T, E> callback, Throwable throwable) {

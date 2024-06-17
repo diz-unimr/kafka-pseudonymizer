@@ -1,5 +1,5 @@
 plugins {
-    id 'org.springframework.boot' version '3.0.0'
+    id 'org.springframework.boot' version '3.3.0'
     id 'io.spring.dependency-management' version '1.1.4'
     id 'java'
     id 'jacoco'
@@ -18,8 +18,9 @@ repositories {
 }
 
 ext {
-    set('springBootVersion', "3.0.0")
-    set("hapiFhirVersion", "5.7.2")
+    set('springBootVersion', "3.3.0")
+    set("hapiFhirVersion", "6.10.5")
+    set('springCloudDepsVersion', "2023.0.0")
 }
 
 dependencies {
@@ -28,10 +29,10 @@ dependencies {
     // spring boot
     implementation "org.springframework.boot:spring-boot-starter-web:$springBootVersion"
     implementation "org.springframework.boot:spring-boot-starter-actuator:$springBootVersion"
-    implementation 'io.micrometer:micrometer-registry-prometheus:1.10.4'
+    implementation 'io.micrometer:micrometer-registry-prometheus:1.13.1'
 
     // https://mvnrepository.com/artifact/net.logstash.logback/logstash-logback-encoder
-    implementation group: 'net.logstash.logback', name: 'logstash-logback-encoder', version: '7.0.1'
+    implementation group: 'net.logstash.logback', name: 'logstash-logback-encoder', version: '7.4'
 
     // hapi fhir
     implementation "ca.uhn.hapi.fhir:hapi-fhir-base:$hapiFhirVersion"
@@ -39,7 +40,7 @@ dependencies {
     implementation "ca.uhn.hapi.fhir:hapi-fhir-structures-r4:$hapiFhirVersion"
     implementation "ca.uhn.hapi.fhir:hapi-fhir-validation:$hapiFhirVersion"
     implementation "ca.uhn.hapi.fhir:hapi-fhir-validation-resources-r4:$hapiFhirVersion"
-    implementation 'org.miracum:kafka-fhir-serializer:1.0.2'
+    implementation 'org.miracum:kafka-fhir-serializer:1.0.6'
 
     // unit tests
     testImplementation 'org.junit.jupiter:junit-jupiter'
@@ -51,21 +52,23 @@ dependencies {
 
 dependencyManagement {
     imports {
-        mavenBom 'org.springframework.cloud:spring-cloud-dependencies:2022.0.0'
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:$springCloudDepsVersion"
     }
 }
 
 test {
     useJUnitPlatform()
-    finalizedBy jacocoTestReport
 }
 
 jacocoTestReport {
     reports {
-        xml.enabled true
+        xml.required = true
+        html.required = false
     }
-    dependsOn test
 }
+
+check.dependsOn jacocoTestReport
+
 
 jar {
     enabled = false
@@ -74,4 +77,3 @@ jar {
 bootJar {
     mainClass.set('de.unimarburg.diz.kafkapseudonymizer.Application')
 }
-
