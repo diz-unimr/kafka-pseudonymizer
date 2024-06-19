@@ -1,4 +1,4 @@
-version: "3.7"
+name: pseudonymizer
 
 services:
   patient-data-loader:

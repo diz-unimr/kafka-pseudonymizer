@@ -30,12 +30,13 @@ The following environment variables can be set:
 | SSL_KEY_STORE_LOCATION_INTERNAL              | /opt/kafka-pseudonymizer/ssl/keystore.jks   | Keystore location                                                                                                           |
 | SSL_KEY_STORE_PASSWORD                       |                                             | Keystore password (if using `SECURITY_PROTOCOL=SSL`)                                                                        |
 | SSL_TRUST_STORE_PASSWORD                     |                                             | Truststore password (if using `SECURITY_PROTOCOL=SSL`)                                                                      |
-| INPUT_TOPICS                                 | `^(?=.*-fhir)(?!.*fhir-psn).*`              | Kafka input topic(s):  List of comma separated names or Regular expression (⚠ See also `INPUT_IS_PATTERN`️)                  |
+| INPUT_TOPICS                                 | `^(?=.*-fhir)(?!.*fhir-psn).*`              | Kafka input topic(s):  List of comma separated names or Regular expression (⚠ See also `INPUT_IS_PATTERN`️)                 |
 | CONSUMER_THREADS                             | 4                                           | Number of concurrent Kafka consumer threads                                                                                 |
 | INPUT_IS_PATTERN                             | true                                        | Sets type of `INPUT_TOPIC`: _true_ if it's a regexp, otherwise _false_                                                      |
 | SERVICES_KAFKA_OUTPUT_TOPIC_MATCH_EXPRESSION | fhir-idat                                   | Part of the input message's topic name to replace with when determining the output topic                                    |
 | SERVICES_KAFKA_OUTPUT_TOPIC_REPLACE_WITH     | fhir-psn                                    | Replaces this with the value of `SERVICES_KAFKA_OUTPUT_TOPIC_MATCH_EXPRESSION` to determine the message's output topic name |
 | SERVICES_PSEUDONYMIZER_URL                   | `http://localhost:5000/fhir`                | Url of the [FHIR® Pseudonymizer](https://github.com/miracum/fhir-pseudonymizer) service                                     |
+| SERVICES_PSEUDONYMIZER_DOMAIN_PREFIX         |                                             | Prefix for the gPAS target domains configured via the FHIR Pseudonymizer's `anonymization.yaml`                             |
 | SSL_KEY_STORE_PASSWORD                       |                                             | Password of the Java keystore for Kafka authentication using SSL                                                            |
 | SSL_TRUST_STORE_PASSWORD                     |                                             | Password of the Java truststore for Kafka authentication using SSL                                                          |
 
@@ -57,6 +58,7 @@ kafka-pseudonymizer:
     SERVICES_KAFKA_OUTPUT_TOPIC_MATCH_EXPRESSION: fhir-idat
     SERVICES_KAFKA_OUTPUT_TOPIC_REPLACE_WITH: fhir-psn
     SERVICES_PSEUDONYMIZER_URL: http://localhost:5000/fhir
+    SERVICES_PSEUDONYMIZER_DOMAIN_PREFIX: miracum-
     SSL_KEY_STORE_PASSWORD: private-key-password
     SSL_TRUST_STORE_PASSWORD: store-password
   volumes:

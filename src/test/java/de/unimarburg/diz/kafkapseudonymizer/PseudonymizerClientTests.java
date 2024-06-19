@@ -31,24 +31,17 @@ public class PseudonymizerClientTests {
 
         var fhirContext = mock(FhirContext.class);
         var fhirClient = setupClientMock(fhirContext, dummyUrl);
-        when(fhirClient
-            .operation()
-            .onServer()
-            .named(eq("de-identify"))
-            .withParameters(argThat((Parameters p) -> p
-                .getParameter()
-                .stream()
-                .anyMatch(__ -> __
-                    .getName()
-                    .equals("resource") && __
-                    .getResource()
-                    .equals(inputBundle))))
-            .returnResourceType(any())
+        when(fhirClient.operation().onServer().named(eq("de-identify"))
+            .withParameters(argThat((Parameters p) -> p.getParameter().stream()
+                .anyMatch(
+                    __ -> __.getName().equals("resource") && __.getResource()
+                        .equals(inputBundle)))).returnResourceType(any())
             .execute()).thenReturn(expected);
 
         // act
         var actual = new PseudonymizerClient(fhirContext,
-            new PseudonymizerProperties(dummyUrl, false)).process(inputBundle);
+            new PseudonymizerProperties(dummyUrl, "", false)).process(
+            inputBundle);
 
         // assert
         assertThat(actual).isEqualTo(expected);
@@ -73,45 +66,29 @@ public class PseudonymizerClientTests {
             V3ObservationValue.ANONYED.getDisplay());
 
         var pseudedBundle = new Bundle();
-        pseudedBundle
-            .getMeta()
-            .addSecurity(pseuded);
+        pseudedBundle.getMeta().addSecurity(pseuded);
         var resource = new Patient();
-        resource
-            .getMeta()
-            .addSecurity(pseuded);
-        pseudedBundle
-            .addEntry()
-            .setResource(resource);
+        resource.getMeta().addSecurity(pseuded);
+        pseudedBundle.addEntry().setResource(resource);
 
         // mocks & stubs
         var fhirContext = mock(FhirContext.class);
         var fhirClient = setupClientMock(fhirContext, dummyUrl);
-        when(fhirClient
-            .operation()
-            .onServer()
-            .named(eq("de-identify"))
-            .withParameters(any())
-            .returnResourceType(any())
+        when(fhirClient.operation().onServer().named(eq("de-identify"))
+            .withParameters(any()).returnResourceType(any())
             .execute()).thenReturn(pseudedBundle);
 
         // act
         var actual = new PseudonymizerClient(fhirContext,
-            new PseudonymizerProperties(dummyUrl, replaceSecurityTags)).process(
-            new Bundle());
+            new PseudonymizerProperties(dummyUrl, null,
+                replaceSecurityTags)).process(new Bundle());
 
         // assert
-        assertThat(actual
-            .getMeta()
-            .getSecurityFirstRep())
+        assertThat(actual.getMeta().getSecurityFirstRep())
             .usingRecursiveComparison()
             .isEqualTo(replaceSecurityTags ? anonyed : pseuded);
-        assertThat(actual
-            .getEntryFirstRep()
-            .getResource()
-            .getMeta()
-            .getSecurityFirstRep())
-            .usingRecursiveComparison()
+        assertThat(actual.getEntryFirstRep().getResource().getMeta()
+            .getSecurityFirstRep()).usingRecursiveComparison()
             .isEqualTo(replaceSecurityTags ? anonyed : pseuded);
     }
 }

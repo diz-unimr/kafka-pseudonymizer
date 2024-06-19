@@ -5,6 +5,7 @@ import static net.logstash.logback.argument.StructuredArguments.kv;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import ca.uhn.fhir.rest.client.exceptions.FhirClientConnectionException;
+import com.google.common.base.Strings;
 import de.unimarburg.diz.kafkapseudonymizer.configuration.PseudonymizerProperties;
 import java.util.HashMap;
 import java.util.function.Predicate;
@@ -12,6 +13,8 @@ import java.util.stream.Stream;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.Parameters;
+import org.hl7.fhir.r4.model.Parameters.ParametersParameterComponent;
+import org.hl7.fhir.r4.model.StringType;
 import org.hl7.fhir.r4.model.codesystems.V3ObservationValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,6 +60,11 @@ public class PseudonymizerClient {
 
         Parameters param = new Parameters();
         param.addParameter().setName("resource").setResource(bundle);
+        if (!Strings.isNullOrEmpty(properties.domainPrefix())) {
+            param.addParameter().setName("settings").addPart(
+                new ParametersParameterComponent().setName("domain-prefix")
+                    .setValue(new StringType(properties.domainPrefix())));
+        }
 
         var result = retryTemplate.execute(
             ctx -> client.operation().onServer().named("de-identify")

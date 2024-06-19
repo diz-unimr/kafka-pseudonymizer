@@ -1,4 +1,4 @@
-version: "3.7"
+name: pseudonymizer
 
 services:
   zoo:
@@ -42,9 +42,19 @@ services:
       - "8088:8080"
 
   gpas:
-    image: harbor.miracum.org/gpas/gpas:1.10.0-20201221
+    image: harbor.miracum.org/gpas/gpas:1.13.1-20230127
     ports:
       - "18080:8080"
+    depends_on:
+      - mysql
+
+  mysql:
+    image: mysql:8.3.0
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: true
+    volumes:
+      - ./sqls/:/docker-entrypoint-initdb.d/
+    command: --max_allowed_packet=20M --default-time-zone=Europe/Berlin
 
   gpasinit-patient:
     image: curlimages/curl:7.75.0
@@ -57,11 +67,11 @@ services:
               <soapenv:Body>
                 <psn:addDomain>
                   <domainDTO>
-                    <name>PATIENT</name>
+                    <name>miracum-patient</name>
                     <checkDigitClass>org.emau.icmvc.ganimed.ttp.psn.generator.ReedSolomonLagrange</checkDigitClass>
                     <alphabet>org.emau.icmvc.ganimed.ttp.psn.alphabets.Symbol31</alphabet>
                     <config>PSN_LENGTH=31;PSN_PREFIX=p;INCLUDE_PREFIX_IN_CHECK_DIGIT_CALCULATION=false;PSNS_DELETABLE=true;MAX_DETECTED_ERRORS=2;</config>
-                    <comment>PATIENT Domain</comment>
+                    <comment>Patient Domain</comment>
                   </domainDTO>
                 </psn:addDomain>
             </soapenv:Body>
@@ -86,11 +96,11 @@ services:
               <soapenv:Body>
                 <psn:addDomain>
                   <domainDTO>
-                    <name>ENCOUNTER</name>
+                    <name>miracum-encounter</name>
                     <checkDigitClass>org.emau.icmvc.ganimed.ttp.psn.generator.ReedSolomonLagrange</checkDigitClass>
                     <alphabet>org.emau.icmvc.ganimed.ttp.psn.alphabets.Symbol31</alphabet>
                     <config>PSN_LENGTH=31;PSN_PREFIX=p;INCLUDE_PREFIX_IN_CHECK_DIGIT_CALCULATION=false;PSNS_DELETABLE=true;MAX_DETECTED_ERRORS=2;</config>
-                    <comment>ENCOUNTER Domain</comment>
+                    <comment>Encounter Domain</comment>
                   </domainDTO>
                 </psn:addDomain>
             </soapenv:Body>
@@ -115,11 +125,11 @@ services:
               <soapenv:Body>
                 <psn:addDomain>
                   <domainDTO>
-                    <name>ORDER</name>
+                    <name>miracum-order</name>
                     <checkDigitClass>org.emau.icmvc.ganimed.ttp.psn.generator.ReedSolomonLagrange</checkDigitClass>
                     <alphabet>org.emau.icmvc.ganimed.ttp.psn.alphabets.Symbol31</alphabet>
                     <config>PSN_LENGTH=31;PSN_PREFIX=p;INCLUDE_PREFIX_IN_CHECK_DIGIT_CALCULATION=false;PSNS_DELETABLE=true;MAX_DETECTED_ERRORS=2;</config>
-                    <comment>ORDER Domain</comment>
+                    <comment>Order Domain</comment>
                   </domainDTO>
                 </psn:addDomain>
             </soapenv:Body>
@@ -134,10 +144,11 @@ services:
       - gpas
 
   fhir-pseudonymizer:
-    image: ghcr.io/miracum/fhir-pseudonymizer:v2.16.0
+    image: ghcr.io/miracum/fhir-pseudonymizer:v2.21.9
     environment:
       UseSystemTextJsonFhirSerializer: true
-      GPAS__URL: "http://gpas:8080/ttp-fhir/fhir/"
+      GPAS__URL: "http://gpas:8080/ttp-fhir/fhir/gpas/"
+      gPAS__Version: 1.13.1
       Features__ConditionalReferencePseudonymization: true
     volumes:
       - ./anonymization.yaml:/etc/anonymization.yaml:ro
