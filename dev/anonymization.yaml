@@ -28,13 +28,13 @@ fhirPathRules:
     method: redact
   - path: nodesByType('Identifier').where(type.coding.system='http://terminology.hl7.org/CodeSystem/v2-0203' and type.coding.code='VN').value
     method: pseudonymize
-    domain: ENCOUNTER
+    domain: encounter
   - path: nodesByType('Identifier').where(type.coding.system='http://terminology.hl7.org/CodeSystem/v2-0203' and type.coding.code='MR').value
     method: pseudonymize
-    domain: PATIENT
+    domain: patient
   - path: nodesByType('Identifier').where(type.coding.system='http://terminology.hl7.org/CodeSystem/v2-0203' and type.coding.code='FILL').value
     method: pseudonymize
-    domain: ORDER
+    domain: order
   - path: nodesByType('Identifier').where(type.coding.system='http://fhir.de/CodeSystem/identifier-type-de-basis' and type.coding.code='GKV' or type.coding.code='PKV')
     method: redact
 parameters:

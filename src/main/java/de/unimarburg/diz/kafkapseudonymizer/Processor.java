@@ -25,17 +25,12 @@ public class Processor {
     @Autowired
     public Processor(PseudonymizerClient pseudonymizerClient,
         AppProperties props) {
-        if (StringUtils.isBlank(props
-            .kafka()
-            .outputTopic()
-            .matchExpression())) {
+        if (StringUtils.isBlank(
+            props.kafka().outputTopic().matchExpression())) {
             throw new IllegalArgumentException(
                 "Output topic match expression is empty");
         }
-        if (StringUtils.isBlank(props
-            .kafka()
-            .outputTopic()
-            .replaceWith())) {
+        if (StringUtils.isBlank(props.kafka().outputTopic().replaceWith())) {
             throw new IllegalArgumentException(
                 "Output topic name replacement is empty");
         }
@@ -43,13 +38,9 @@ public class Processor {
         this.pseudonymizerClient = pseudonymizerClient;
         this.props = props;
 
-        LOG.info("Using match expression: {} with replacement: {}", props
-            .kafka()
-            .outputTopic()
-            .matchExpression(), props
-            .kafka()
-            .outputTopic()
-            .replaceWith());
+        LOG.info("Using match expression: {} with replacement: {}",
+            props.kafka().outputTopic().matchExpression(),
+            props.kafka().outputTopic().replaceWith());
     }
 
     @Bean
@@ -57,16 +48,13 @@ public class Processor {
         return message -> {
 
             // get message header key
-            var messageKey = message
-                .getHeaders()
-                .getOrDefault(KafkaHeaders.RECEIVED_KEY, "")
-                .toString();
+            var messageKey =
+                message.getHeaders().getOrDefault(KafkaHeaders.RECEIVED_KEY, "")
+                    .toString();
 
             // incoming topic
-            var inputTopic = Objects
-                .requireNonNull(message
-                    .getHeaders()
-                    .get(KafkaHeaders.RECEIVED_TOPIC))
+            var inputTopic = Objects.requireNonNull(
+                    message.getHeaders().get(KafkaHeaders.RECEIVED_TOPIC))
                 .toString();
             LOG.info("Processing message {} from topic: {}", messageKey,
                 inputTopic);
@@ -79,12 +67,10 @@ public class Processor {
             var processed = pseudonymizerClient.process(bundle);
 
             // build new message with payload
-            var messageBuilder = MessageBuilder
-                .withPayload(processed)
+            var messageBuilder = MessageBuilder.withPayload(processed)
                 .setHeader(KafkaHeaders.KEY, messageKey)
-                .setHeader(KafkaHeaders.TIMESTAMP, message
-                    .getHeaders()
-                    .get(KafkaHeaders.RECEIVED_TIMESTAMP))
+                .setHeader(KafkaHeaders.TIMESTAMP,
+                    message.getHeaders().get(KafkaHeaders.RECEIVED_TIMESTAMP))
                 .setHeader("spring.cloud.stream.sendto.destination",
                     outputTopic);
 
@@ -94,28 +80,20 @@ public class Processor {
 
 
     public String generateOutputTopic(String inputTopic) {
-        var outputTopic = inputTopic.replaceFirst(props
-            .kafka()
-            .outputTopic()
-            .matchExpression(), props
-            .kafka()
-            .outputTopic()
-            .replaceWith());
+        var outputTopic = inputTopic.replaceFirst(
+            props.kafka().outputTopic().matchExpression(),
+            props.kafka().outputTopic().replaceWith());
 
         if (inputTopic.equals(outputTopic)) {
             throw new IllegalArgumentException(
-                String.format("Match expression' not matched: %s", props
-                    .kafka()
-                    .outputTopic()
-                    .matchExpression()));
+                String.format("Match expression' not matched: %s",
+                    props.kafka().outputTopic().matchExpression()));
         }
 
         // validate output topic is not matched by
         // the input topic's expression (would cause a loop)
-        if (props.inputIsPattern() && outputTopic.matches(props
-            .kafka()
-            .outputTopic()
-            .matchExpression())) {
+        if (props.inputIsPattern() && outputTopic.matches(
+            props.kafka().outputTopic().matchExpression())) {
             throw new IllegalArgumentException(String.format(
                 "Input topic pattern '%s' matches output topic pattern '%s'."
                     + " This would cause a loop.", props.inputTopic(),

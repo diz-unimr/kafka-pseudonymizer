@@ -42,6 +42,7 @@ spring:
 services:
   pseudonymizer:
     url: "http://localhost:5000/fhir"
+    domain-prefix:
     replace-security-tag: true
 
   kafka:
