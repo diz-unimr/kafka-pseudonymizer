@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.Parameters;
 import org.hl7.fhir.r4.model.Parameters.ParametersParameterComponent;
@@ -79,7 +80,8 @@ public class PseudonymizerClient {
             var pseudedCodings = Stream.concat(
                 bundle.getMeta().getSecurity().stream().filter(isPseuded),
 
-                bundle.getEntry().stream().flatMap(
+                bundle.getEntry().stream()
+                    .filter(BundleEntryComponent::hasResource).flatMap(
                         x -> x.getResource().getMeta().getSecurity().stream())
                     .filter(isPseuded)).toList();
 
